@@ -4,10 +4,12 @@ An experiment to try and create a [Library of Babel](https://sites.evergreen.edu
 
 ### Using
 
-`yarn start --mode lookup --identifier HEX.WALL.SHELF.BOOK.PAGE`
+```
+yarn start --mode lookup --identifier HEX.WALL.SHELF.BOOK.PAGE
+```
 
 Where:
-* _HEX_ is any lowercase alphanumeric string
+* _HEX_ is any lowercase alphanumeric string [a-z0-9]
 * _WALL_ is an integer 1-4
 * _SHELF_ is an integer 1-5
 * _BOOK_ is an integer 1-32
