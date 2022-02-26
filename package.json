@@ -1,0 +1,20 @@
+{
+  "name": "babel",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "repository": "https://github.com/tdjsnelling/babel",
+  "author": "Tom Snelling <tomsnelling8@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.4.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1"
+  },
+  "dependencies": {
+    "alea": "^1.0.1",
+    "argparse": "^2.0.1"
+  }
+}
