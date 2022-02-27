@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "alea": "^1.0.1",
-    "argparse": "^2.0.1"
+    "argparse": "^2.0.1",
+    "chalk": "^5.0.0"
   }
 }

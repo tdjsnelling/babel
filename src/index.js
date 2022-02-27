@@ -1,5 +1,6 @@
 import Alea from "alea";
 import { ArgumentParser } from "argparse";
+import chalk from "chalk";
 
 const argParser = new ArgumentParser();
 argParser.add_argument("-m", "--mode", { help: 'either "lookup" or "search"' });
@@ -44,40 +45,39 @@ const checkBounds = (hex, wall, shelf, book, page) => {
     throw new Error(`Page must be between 1 and ${PAGES}`);
 };
 
-const formatPage = (lines) =>
-  lines.map((line, i) => `${padNum(i + 1)} | ${line}`).join("\n");
+const formatPage = (pageContent) => {
+  const lines = pageContent.match(new RegExp(`.{${CHARS}}`, "g"));
+  return lines
+    .map((line, i) => `${chalk.grey(padNum(i + 1))} | ${line}`)
+    .join("\n");
+};
 
 const generatePage = (identifier = "") => {
   const [hex, wall, shelf, book, page] = identifier.split(".");
   checkBounds(hex, wall, shelf, book, page);
 
-  let lines = [];
-  const linePrng = new Alea(identifier);
+  let pageContent = "";
+  let prng = new Alea(identifier);
 
-  for (let i = 0; i < LINES; i++) {
-    lines[i] = "";
-    const lineValue = linePrng();
-    const charPrng = new Alea(lineValue);
-
-    for (let j = 0; j < CHARS; j++) {
-      const charValue = Number(charPrng().toString().replace("0.", ""));
-      const char = ALPHA[Math.floor(charValue % ALPHA.length)];
-      lines[i] += char;
-    }
+  for (let i = 0; i < LINES * CHARS; i++) {
+    const charValue = prng();
+    pageContent += ALPHA[Math.floor(charValue * ALPHA.length)];
   }
 
-  return lines;
+  return pageContent;
 };
 
 const lookup = (identifier) => {
   const [hex, wall, shelf, book, page] = identifier.split(".");
   console.log(
-    `lookup ${identifier} > hex: ${hex}, wall: ${wall}, shelf: ${shelf} book: ${book}, page: ${page}`
+    chalk.cyan(
+      `lookup ${identifier}\nhex: ${hex}, wall: ${wall}, shelf: ${shelf}, book: ${book}, page: ${page}`
+    )
   );
 
-  const lines = generatePage(identifier);
-  const pageContent = formatPage(lines);
-  console.log(`${border}\n${pageContent}\n${border}`);
+  const pageContent = generatePage(identifier);
+  const formattedPage = formatPage(pageContent);
+  console.log(`${border}\n${formattedPage}\n${border}`);
 };
 
 if (args.mode === "lookup") {
