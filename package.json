@@ -8,17 +8,23 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   },
   "devDependencies": {
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.15",
     "prettier": "^2.5.1"
   },
   "dependencies": {
+    "@koa/router": "^10.1.1",
     "alea": "^1.0.1",
     "argparse": "^2.0.1",
-    "chalk": "^5.0.0"
+    "bignumber.js": "^9.0.2",
+    "chalk": "^5.0.0",
+    "koa": "^2.13.4",
+    "koa-bodyparser": "^4.3.0"
   }
 }
