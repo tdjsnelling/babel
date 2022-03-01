@@ -1,21 +1,12 @@
+/*
+  This script will generate a large random number co-prime to N, as well as
+  it's modular inverse.
+*/
+
 import BigNumber from "bignumber.js";
+import { ALPHA, LINES, CHARS, N } from "../constants.js";
 
-export const ALPHA = "abcdefghijklmnopqrstuvwxyz., ";
-export const WALLS = 4;
-export const SHELVES = 5;
-export const BOOKS = 32;
-export const PAGES = 410;
-export const LINES = 40;
-export const CHARS = 80;
-
-BigNumber.config({ RANGE: LINES * CHARS * 5 });
-
-export const N = new BigNumber(
-  Array(LINES * CHARS)
-    .fill("s")
-    .join(""),
-  ALPHA.length
-);
+BigNumber.config({ RANGE: 1e4 });
 
 const gcd = (a, b) => {
   if (b.isZero()) return a;
@@ -38,9 +29,6 @@ const egcd = (a, b) => {
     [s, old_s] = [old_s.minus(q.multipliedBy(s)), s];
     [t, old_t] = [old_t.minus(q.multipliedBy(t)), t];
   }
-  console.log("Bezout coef: ", old_s.toString(), old_t.toString());
-  console.log("GCD: ", old_r.toString());
-  console.log("Quot by GCD: ", s.toString(), t.toString());
   return [old_r, old_t, old_s];
 };
 
