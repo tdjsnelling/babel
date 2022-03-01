@@ -20,11 +20,7 @@
   },
   "dependencies": {
     "@koa/router": "^10.1.1",
-    "alea": "^1.0.1",
-    "argparse": "^2.0.1",
     "bignumber.js": "^9.0.2",
-    "chalk": "^5.0.0",
-    "koa": "^2.13.4",
-    "koa-bodyparser": "^4.3.0"
+    "koa": "^2.13.4"
   }
 }

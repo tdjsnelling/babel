@@ -25,6 +25,10 @@ export const i =
 
 export const welcomeMessage = `Welcome to the Library of Babel.
 
+The Library contains every single combination of the 26 letters of the Latin alphabet, the period, the comma, and the space.
+
+Every sentence that every has been written or ever will be written using these characters exists here.
+
 ===
 
 Look up a page at /ref/ROOM.WALL.SHELF.BOOK.PAGE
