@@ -1,5 +1,5 @@
 /*
-  This script will generate a large random number co-prime to N, as well as
+  This script will generate a large random number coprime to N, as well as
   it's modular inverse.
 */
 
