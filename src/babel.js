@@ -120,15 +120,12 @@ export const reverseLookupPage = (content) => {
 };
 
 // Take an identifier and return a pretty-printed version of the page location + contents
-export const getFormattedPage = (identifier) => {
+export const getPage = (identifier) => {
   const [room, wall, shelf, book, page] = identifier.split(".");
 
   const pageContent = generatePage(identifier);
 
   const lines = pageContent.match(new RegExp(`.{${CHARS}}`, "g"));
-  const formattedPage = lines
-    .map((line, i) => `${padNum(i + 1)} ${line}`)
-    .join("\n");
 
   return {
     info: {
@@ -141,7 +138,7 @@ export const getFormattedPage = (identifier) => {
       page,
       identifier: [room, wall, shelf, book, page].join("."),
     },
-    formattedPage,
+    lines,
   };
 };
 

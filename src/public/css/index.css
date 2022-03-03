@@ -96,6 +96,17 @@ footer a {
   margin-top: 10px;
 }
 
+.PageContent .Line span {
+  display: inline-block;
+  color: var(--colour-grey);
+  user-select: none;
+  width: 3ch;
+}
+
+.PageContent .Line pre {
+  display: inline-block;
+}
+
 .PageContent {
   font-family: "Source Code Pro", monospace;
 }

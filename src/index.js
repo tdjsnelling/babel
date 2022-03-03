@@ -6,7 +6,7 @@ import path from "path";
 import { LINES, CHARS } from "./constants.js";
 import {
   checkBounds,
-  getFormattedPage,
+  getPage,
   reverseLookupPage,
   getSequentialPageNumberFromIdentifier,
   getIdentifierFromSequentialPageNumber,
@@ -51,14 +51,14 @@ router
       return;
     }
 
-    const { info, formattedPage } = getFormattedPage(identifier);
+    const { info, lines } = getPage(identifier);
 
     const pageNumber = getSequentialPageNumberFromIdentifier(identifier);
 
     const nextPage = getIdentifierFromSequentialPageNumber(pageNumber.plus(1));
     const prevPage = getIdentifierFromSequentialPageNumber(pageNumber.minus(1));
 
-    await ctx.render("page", { info, formattedPage, nextPage, prevPage });
+    await ctx.render("page", { info, lines, nextPage, prevPage });
   })
   .get("/search", async (ctx) => {
     let { content } = ctx.request.query;
