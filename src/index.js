@@ -3,7 +3,7 @@ import Router from "@koa/router";
 import Pug from "koa-pug";
 import serve from "koa-static";
 import path from "path";
-import { LINES, CHARS } from "./constants.js";
+import { LINES, CHARS, ALPHA } from "./constants.js";
 import {
   checkBounds,
   getPage,
@@ -75,6 +75,20 @@ router
       } characters long.`;
       return;
     }
+
+    content = content
+      .split("\r\n")
+      .map((line, i) => {
+        let chars = line.split("");
+        chars.forEach((char, i) => {
+          if (!ALPHA.includes(char)) chars[i] = " ";
+        });
+        if (chars.length < CHARS) {
+          chars = chars.concat(Array(CHARS - line.length).fill(" "));
+        }
+        return chars.join("");
+      })
+      .join("");
 
     while (content.length < LINES * CHARS) content += " ";
 
