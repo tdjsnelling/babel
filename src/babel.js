@@ -9,6 +9,7 @@ import {
   N,
   c,
   i,
+  LINES,
 } from "./constants.js";
 
 BigNumber.config({ RANGE: 1e4 });
@@ -90,7 +91,13 @@ const generatePage = (identifier) => {
   const coprime = new BigNumber(c, ALPHA.length);
 
   const result = seqPage.multipliedBy(coprime).modulo(N);
-  const hash = result.toString(ALPHA.length);
+  let hash = result.toString(ALPHA.length);
+
+  // As we treat our page value as an integer, leading zeroes will get lost
+  // If our hash is shorter than 3200 chars, then these were lost as leading zeroes
+  while (hash.length < LINES * CHARS) {
+    hash = `0${hash}`;
+  }
 
   for (const index of hash.split("")) {
     pageContent += ALPHA[parseInt(index, ALPHA.length)];

@@ -13,7 +13,10 @@ html(lang="en")
         pre.PageContent #{formattedPage}
 
         div.PageNavigation
-            a(href=`/ref/${prevPage}`) &larr; Previous
+            - if (info.identifier === '1.1.1.1.1')
+                div
+            - else
+                a(href=`/ref/${prevPage}`) &larr; Previous
             a(href=`/ref/${nextPage}`) Next &rarr;
 
         include includes/footer.pug
