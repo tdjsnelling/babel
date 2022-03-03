@@ -1,0 +1,133 @@
+:root {
+  --colour-bg: floralwhite;
+  --colour-fg: #111;
+  --colour-grey: #666;
+  --colour-border: #ddd;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 738px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--colour-bg);
+  color: var(--colour-fg);
+  font-family: "Lora", serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--colour-fg);
+  font-weight: bold;
+}
+
+a[target="_blank"]::after {
+  content: "";
+  display: inline-block;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill:currentColor;"><path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"></path></svg>');
+  width: 14px;
+  height: 14px;
+  transform: rotate(-45deg);
+  vertical-align: top;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+nav h1 {
+  font-size: 14px;
+}
+
+nav .Links {
+  display: flex;
+  align-items: center;
+}
+
+nav .Links a {
+  display: inline-block;
+}
+
+nav .Links > * + * {
+  margin-left: 10px;
+}
+
+footer {
+  margin-top: 40px;
+  padding-top: 10px;
+  border-top: 1px solid var(--colour-border);
+}
+
+footer p,
+footer a {
+  color: var(--colour-grey);
+}
+
+.BodyStyle > * + * {
+  margin-top: 15px;
+}
+
+.PageInfo {
+  margin-bottom: 20px;
+}
+
+.PageInfo details {
+  margin-top: 10px;
+}
+
+.PageInfo details p {
+  font-family: "Source Code Pro", monospace;
+  word-break: break-all;
+  user-select: all;
+  border: 1px solid var(--colour-border);
+  border-radius: 2px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.PageContent {
+  font-family: "Source Code Pro", monospace;
+}
+
+.PageNavigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.SearchForm textarea {
+  appearance: none;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  padding: 10px;
+  font-family: "Source Code Pro", monospace;
+  font-size: 14px;
+  border: 1px solid grey;
+  border-radius: 2px;
+  margin-bottom: 10px;
+}
+
+.SearchForm button {
+  appearance: none;
+  width: 100%;
+  padding: 10px;
+  font-family: "Lora", serif;
+  font-size: 14px;
+  border: 1px solid grey;
+  border-radius: 2px;
+  background-color: antiquewhite;
+}

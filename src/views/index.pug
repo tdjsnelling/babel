@@ -1,0 +1,45 @@
+doctype html
+html(lang="en")
+    include includes/head.pug
+    body
+        include includes/nav.pug
+        div.BodyStyle
+            p
+                | The
+                |
+                a(href="/pdf/Borges-The-Library-of-Babel.pdf", target="_blank") Library of Babel
+                |
+                | is a short story by
+                |
+                a(href="https://en.wikipedia.org/wiki/Jorge_Luis_Borges", target="_blank") Jorge Luis Borges
+                |.
+
+            p It describes a library made up of an “indefinite, perhaps infinite” number hexagonal of rooms, each lined on four sides by a bookshelf of five shelves, each self containing thirty-two books. Each book is four hundred and ten pages of forty lines, each line of eighty characters.
+            p The character set in these books is limited to the twenty-six lower-case letters of the English alphabet, the comma, the period, and the space.
+            p In its pages, the library contains every possible combination of these characters. No two books are the same — meaning that the library is “total — perfect, complete, and whole”. Everything that ever has been, or ever will be written using these twenty-nine characters is contained somewhere within the library.
+
+            p This is a re-creation of the library, explorable from your web browser.
+
+            p You can get started by browsing the library from
+                |
+                |
+                a(href="/ref/1.1.1.1.1") the start
+                |, from a
+                |
+                a(href="/random") random page
+                |, or by
+                |
+                a(href="/search") searching for some text
+                |.
+
+            p Try searching for your name, your date of birth, or maybe a line from your favourite song or poem.
+
+            p Please see the
+                |
+                |
+                a(href="https://github.com/tdjsnelling/babel", target="_blank") GitHub repository
+                |
+                | for a more technical explanation of how this site works and to view the source code.
+
+
+        include includes/footer.pug

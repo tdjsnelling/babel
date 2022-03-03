@@ -15,8 +15,6 @@ BigNumber.config({ RANGE: 1e4 });
 
 const roomRegex = /[0-9a-z]+/;
 
-const border = new Array(CHARS + 5).fill("=").join("");
-
 const padNum = (num) => (num < 10 ? `0${num}` : `${num}`);
 
 // Check that all parts of an identifier are valid
@@ -40,7 +38,7 @@ export const checkBounds = (room, wall, shelf, book, page) => {
 };
 
 // Transform an identifier to a page number
-const getSequentialPageNumberFromIdentifier = (identifier) => {
+export const getSequentialPageNumberFromIdentifier = (identifier) => {
   const [room, wall, shelf, book, page] = identifier.split(".");
   const intRoom = new BigNumber(room, 36);
 
@@ -54,8 +52,8 @@ const getSequentialPageNumberFromIdentifier = (identifier) => {
 };
 
 // Transform a page number to an identifier
-const getIdentifierFromSequentialPageNumber = (pageNumber) => {
-  let remaining = pageNumber;
+export const getIdentifierFromSequentialPageNumber = (pageNumber) => {
+  let remaining = pageNumber.minus(1);
 
   const room = remaining
     .dividedToIntegerBy(WALLS * SHELVES * BOOKS * PAGES)
@@ -72,7 +70,13 @@ const getIdentifierFromSequentialPageNumber = (pageNumber) => {
   const book = remaining.dividedToIntegerBy(PAGES);
   remaining = remaining.modulo(PAGES);
 
-  return [room, wall.plus(1), shelf.plus(1), book.plus(1), remaining].join(".");
+  return [
+    room,
+    wall.plus(1),
+    shelf.plus(1),
+    book.plus(1),
+    remaining.plus(1),
+  ].join(".");
 };
 
 // Take and identifier and return the resulting page contents
@@ -111,14 +115,37 @@ export const reverseLookupPage = (content) => {
 // Take an identifier and return a pretty-printed version of the page location + contents
 export const getFormattedPage = (identifier) => {
   const [room, wall, shelf, book, page] = identifier.split(".");
-  const info = `room: ${room}, wall: ${wall}, shelf: ${shelf}, book: ${book}, page: ${page}`;
 
   const pageContent = generatePage(identifier);
 
   const lines = pageContent.match(new RegExp(`.{${CHARS}}`, "g"));
   const formattedPage = lines
-    .map((line, i) => `${padNum(i + 1)} | ${line}`)
+    .map((line, i) => `${padNum(i + 1)} ${line}`)
     .join("\n");
 
-  return `${info}\n\n${border}\n${formattedPage}\n${border}`;
+  return {
+    info: {
+      room,
+      shortRoom:
+        room.length > 16 ? `${room.slice(0, 8)}...${room.slice(-8)}` : room,
+      wall,
+      shelf,
+      book,
+      page,
+      identifier: [room, wall, shelf, book, page].join("."),
+    },
+    formattedPage,
+  };
+};
+
+export const getRandomPageIdentifier = () => {
+  const maxRoom = new BigNumber("10e+4677")
+    .dividedToIntegerBy(BOOKS * SHELVES * WALLS)
+    .multipliedBy(Math.random());
+  const rWall = Math.ceil(WALLS * Math.random());
+  const rShelf = Math.ceil(SHELVES * Math.random());
+  const rBook = Math.ceil(BOOKS * Math.random());
+  const rPage = Math.ceil(PAGES * Math.random());
+
+  return [maxRoom.toString(36), rWall, rShelf, rBook, rPage].join(".");
 };

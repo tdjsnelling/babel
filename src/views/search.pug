@@ -1,0 +1,10 @@
+doctype html
+html(lang="en")
+    include includes/head.pug
+    body
+        include includes/nav.pug
+        form.SearchForm
+            textarea(name="content", rows="10", placeholder="Enter up to 3200 characters from a-z, comma, period, or space.")
+            button Search &rarr;
+
+        include includes/footer.pug

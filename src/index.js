@@ -1,17 +1,46 @@
 import Koa from "koa";
 import Router from "@koa/router";
-import { welcomeMessage, LINES, CHARS } from "./constants.js";
-import { checkBounds, getFormattedPage, reverseLookupPage } from "./babel.js";
+import Pug from "koa-pug";
+import serve from "koa-static";
+import path from "path";
+import { LINES, CHARS } from "./constants.js";
+import {
+  checkBounds,
+  getFormattedPage,
+  reverseLookupPage,
+  getSequentialPageNumberFromIdentifier,
+  getIdentifierFromSequentialPageNumber,
+  getRandomPageIdentifier,
+} from "./babel.js";
 
 const app = new Koa();
 const router = new Router();
+const pug = new Pug({
+  viewPath: path.resolve(path.resolve(), "src/views"),
+  app,
+});
 
-router.get("/", (ctx) => {
-  ctx.body = welcomeMessage;
+app.use(serve("src/public"));
+
+app.use(async (ctx, next) => {
+  await next();
+  const rt = ctx.response.get("X-Response-Time");
+  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+});
+
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  ctx.set("X-Response-Time", `${ms}ms`);
+});
+
+router.get("/", async (ctx) => {
+  await ctx.render("index");
 });
 
 router
-  .get("/ref/:identifier", (ctx) => {
+  .get("/ref/:identifier", async (ctx) => {
     const { identifier } = ctx.params;
 
     try {
@@ -22,12 +51,22 @@ router
       return;
     }
 
-    ctx.set("Content-Type", "text/plain");
-    ctx.status = 200;
-    ctx.body = getFormattedPage(identifier);
+    const { info, formattedPage } = getFormattedPage(identifier);
+
+    const pageNumber = getSequentialPageNumberFromIdentifier(identifier);
+
+    const nextPage = getIdentifierFromSequentialPageNumber(pageNumber.plus(1));
+    const prevPage = getIdentifierFromSequentialPageNumber(pageNumber.minus(1));
+
+    await ctx.render("page", { info, formattedPage, nextPage, prevPage });
   })
-  .get("/search", (ctx) => {
+  .get("/search", async (ctx) => {
     let { content } = ctx.request.query;
+
+    if (!content) {
+      await ctx.render("search");
+      return;
+    }
 
     if (content.length > LINES * CHARS) {
       ctx.status = 400;
@@ -43,6 +82,12 @@ router
 
     ctx.status = 302;
     ctx.redirect(`/ref/${identifier}`);
+  })
+  .get("/random", (ctx) => {
+    const randomIdentifier = getRandomPageIdentifier();
+
+    ctx.status = 302;
+    ctx.redirect(`/ref/${randomIdentifier}`);
   });
 
 app.use(router.routes());

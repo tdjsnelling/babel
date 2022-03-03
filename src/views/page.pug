@@ -1,0 +1,19 @@
+doctype html
+html(lang="en")
+    include includes/head.pug
+    body
+        include includes/nav.pug
+        div.PageInfo
+            pre room #{info.shortRoom} / wall #{info.wall} / shelf #{info.shelf} / book #{info.book} / page #{info.page}
+            - if (info.room !== info.shortRoom)
+                details
+                    summary View full page reference
+                    p #{info.identifier}
+
+        pre.PageContent #{formattedPage}
+
+        div.PageNavigation
+            a(href=`/ref/${prevPage}`) &larr; Previous
+            a(href=`/ref/${nextPage}`) Next &rarr;
+
+        include includes/footer.pug

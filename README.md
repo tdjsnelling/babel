@@ -8,7 +8,7 @@ An experiment to try and create a functioning Library of Babel.
 
 It describes a library made up of an “indefinite, perhaps infinite” number hexagonal of rooms, each lined on four sides by a bookshelf of five shelves, each self containing thirty-two books. Each book is four hundred and ten pages of forty lines, each line of eighty characters.
 
-The character set in these books is limited to the twenty-six lower-case letters of the Latin alphabet, the comma, the period, and the space.
+The character set in these books is limited to the twenty-six lower-case letters of the English alphabet, the comma, the period, and the space.
 
 In its pages, the library contains every possible combination of these characters. No two books are the same — meaning that the library is “total — perfect, complete, and whole”. Everything that ever has been, or ever will be written using these twenty-nine characters is contained somewhere within the library.
 
@@ -29,7 +29,7 @@ $ yarn start
 
 You can then look up a page at the `/ref/...` endpoint, e.g. `/ref/1.1.1.1.1`.
 
-You can search for a page containing some content at `/search?content=<QUERY>`.
+You can search for a page containing some content at `/search`, and you can get a random page at `/random`.
 
 ### How does it work?
 
@@ -67,9 +67,9 @@ We work in base-29, as that is the number of characters in our alphabet. We need
 
 The code to generate both `c` and `i` can be found in `src/utils/generateMIPair.js`.
 
-A better explanation of these operations can be found in the blog post [A practical use of multiplicative inverses](https://ericlippert.com/2013/11/14/a-practical-use-of-multiplicative-inverses).
+A better explanation of why we need these constants can be found in the blog post [A practical use of multiplicative inverses](https://ericlippert.com/2013/11/14/a-practical-use-of-multiplicative-inverses).
 
-The operations we need are:
+The operations we need to perform are:
 
 * `pageContentValue = pageNumber * c % N`, and
 * `pageNumber = pageContentValue * i % N`.
