@@ -3,6 +3,7 @@ import Router from "@koa/router";
 import Pug from "koa-pug";
 import serve from "koa-static";
 import path from "path";
+import memoize from "memoizee";
 import { LINES, CHARS, ALPHA } from "./constants.js";
 import {
   checkBounds,
@@ -12,6 +13,21 @@ import {
   getIdentifierFromSequentialPageNumber,
   getRandomPageIdentifier,
 } from "./babel.js";
+
+const getPageWithMeta = (identifier) => {
+  const { info, lines } = getPage(identifier);
+
+  const pageNumber = getSequentialPageNumberFromIdentifier(identifier);
+
+  const prevPage = getIdentifierFromSequentialPageNumber(pageNumber.minus(1));
+  const nextPage = getIdentifierFromSequentialPageNumber(pageNumber.plus(1));
+
+  return { info, lines, prevPage, nextPage };
+};
+
+const getPageWithMetaMemo = memoize(getPageWithMeta, {
+  maxAge: 1000 * 60 * 30,
+});
 
 const app = new Koa();
 const router = new Router();
@@ -51,14 +67,9 @@ router
       return;
     }
 
-    const { info, lines } = getPage(identifier);
+    const { info, lines, prevPage, nextPage } = getPageWithMetaMemo(identifier);
 
-    const pageNumber = getSequentialPageNumberFromIdentifier(identifier);
-
-    const nextPage = getIdentifierFromSequentialPageNumber(pageNumber.plus(1));
-    const prevPage = getIdentifierFromSequentialPageNumber(pageNumber.minus(1));
-
-    await ctx.render("page", { info, lines, nextPage, prevPage });
+    await ctx.render("page", { info, lines, prevPage, nextPage });
   })
   .get("/search", async (ctx) => {
     let { content } = ctx.request.query;

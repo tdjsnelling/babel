@@ -23,6 +23,7 @@
     "bignumber.js": "^9.0.2",
     "koa": "^2.13.4",
     "koa-pug": "^5.0.0",
-    "koa-static": "^5.0.0"
+    "koa-static": "^5.0.0",
+    "memoizee": "^0.4.15"
   }
 }
