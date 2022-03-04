@@ -8,7 +8,7 @@ An experiment to try and create a functioning Library of Babel.
 
 It describes a library made up of an “indefinite, perhaps infinite” number hexagonal of rooms, each lined on four sides by a bookshelf of five shelves, each self containing thirty-two books. Each book is four hundred and ten pages of forty lines, each line of eighty characters.
 
-The character set in these books is limited to the twenty-six lower-case letters of the English alphabet, the comma, the period, and the space.
+The character set in these books is limited to the twenty-six lower-case letters of the English alphabet, the comma, the full-stop, and the space.
 
 In its pages, the library contains every possible combination of these characters. No two books are the same — meaning that the library is “total — perfect, complete, and whole”. Everything that ever has been, or ever will be written using these twenty-nine characters is contained somewhere within the library.
 

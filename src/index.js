@@ -74,7 +74,7 @@ router
   .get("/search", async (ctx) => {
     let { content } = ctx.request.query;
 
-    if (!content) {
+    if (!content || content.replace(/ /g, "") === "") {
       await ctx.render("search");
       return;
     }
@@ -89,7 +89,7 @@ router
 
     content = content
       .split("\n")
-      .map((line, i) => {
+      .map((line) => {
         let chars = line.split("");
         chars.forEach((char, i) => {
           if (!ALPHA.includes(char)) chars[i] = " ";

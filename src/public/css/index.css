@@ -1,7 +1,7 @@
 :root {
   --colour-bg: floralwhite;
   --colour-fg: #111;
-  --colour-grey: #666;
+  --colour-grey: #545454;
   --colour-border: #ddd;
 }
 
@@ -163,4 +163,12 @@ footer a {
   border-radius: 2px;
   background-color: antiquewhite;
   color: var(--colour-fg);
+}
+
+.InfoBox {
+  border: 1px solid var(--colour-border);
+  border-radius: 2px;
+  padding: 10px;
+  color: var(--colour-grey);
+  font-size: 13px;
 }
