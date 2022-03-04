@@ -37,6 +37,8 @@ The content of each page is intrinsically linked to its page number. Pages are n
 
 Each page will contain the same contents forever. There is no trickery going on to simply show you a made-up page containing the text that you search for.
 
+This implementation is not perfect — in the original story, it is stated that “there are no two identical books”. Due to some reasonable limits of computation, this implementation reduces that to “there are no two identical pages”. Of course then it follows that in this re-creation there are no two identical books, but this also means that searched content cannot span over more than one page. If you search for some text and the following page is gibberish, then in this implementation it cannot also exist followed by a page of continuing English prose.
+
 #### Detailed explanation
 
 Firstly, each individual page in the library is given an identifier. For readability, this is represented in the form `ROOM.WALL.SHELF.BOOK.PAGE`, where:
