@@ -10,12 +10,16 @@ html(lang="en")
                     summary View full page reference
                     p #{info.identifier}
 
-        div.PageContent
-            each line, index in lines
-                - const i = index + 1
-                div.Line
-                    span #{i < 10 ? `0${i}` : i}
-                    pre #{line}
+        div.PageContentWrapper
+            div.PageContent
+                div.Lines
+                    each line, index in lines
+                        - const i = index + 1
+                        span
+                            |
+                            | #{i < 10 ? `0${i}` : i}
+                pre
+                    | #{lines.join('\n')}
 
         div.PageNavigation
             - if (info.identifier === '1.1.1.1.1')

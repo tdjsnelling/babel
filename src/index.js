@@ -68,7 +68,7 @@ router
       return;
     }
 
-    if (content.length > LINES * CHARS) {
+    if (content.replace(/\r/g, "").replace(/\n/g, "").length > LINES * CHARS) {
       ctx.status = 400;
       ctx.body = `Content cannot be longer than ${
         LINES * CHARS
@@ -77,7 +77,7 @@ router
     }
 
     content = content
-      .split("\r\n")
+      .split("\n")
       .map((line, i) => {
         let chars = line.split("");
         chars.forEach((char, i) => {

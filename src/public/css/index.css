@@ -21,6 +21,7 @@ body {
   color: var(--colour-fg);
   font-family: "Lora", serif;
   font-size: 14px;
+  line-height: 1.4;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -82,6 +83,10 @@ footer a {
   margin-bottom: 20px;
 }
 
+.PageInfo pre {
+  white-space: break-spaces;
+}
+
 .PageInfo details {
   margin-top: 10px;
 }
@@ -96,19 +101,35 @@ footer a {
   margin-top: 10px;
 }
 
-.PageContent .Line span {
-  display: inline-block;
-  color: var(--colour-grey);
-  user-select: none;
-  width: 3ch;
-}
-
-.PageContent .Line pre {
-  display: inline-block;
+.PageContentWrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .PageContent {
+  display: grid;
+  grid-template-columns: 3ch 80ch;
+}
+
+.PageContent .Lines {
+  color: var(--colour-grey);
+  user-select: none;
+  width: 3ch;
+  display: inline-block;
+  position: sticky;
+  left: 0;
+  background-color: var(--colour-bg);
   font-family: "Source Code Pro", monospace;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.PageContent pre {
+  width: 80ch;
+  font-family: "Source Code Pro", monospace;
+  font-size: 14px;
+  line-height: 1.2;
 }
 
 .PageNavigation {
@@ -141,4 +162,5 @@ footer a {
   border: 1px solid grey;
   border-radius: 2px;
   background-color: antiquewhite;
+  color: var(--colour-fg);
 }
