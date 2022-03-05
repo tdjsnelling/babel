@@ -3,8 +3,21 @@ html(lang="en")
     include includes/head.pug
     body
         include includes/nav.pug
+        div.BodyStyle
+            p Any text you can come up with will already have been written down, somewhere deep within the library. All that remains is to find it.
+            p
+                em “...the detailed history of the future...”
+            p
+                em “...the autobiographies of the archangels...”
+            p
+                em “...the faithful catalog of the Library...”
+            p
+                em “...the true story of your death...”
+            p
+                em “...the translation of every book into every language...”
+
         form.SearchForm
-            textarea(name="content", rows="10", placeholder="Enter up to 3200 characters from a-z, comma, full-stop, or space.")
+            textarea(name="content", rows="10", placeholder="Enter up to 3200 characters from a-z, comma, full-stop, or space. New lines are preserved.")
             button Search
 
         include includes/footer.pug
