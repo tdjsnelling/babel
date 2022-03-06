@@ -2,6 +2,7 @@
   --colour-bg: floralwhite;
   --colour-fg: #111;
   --colour-grey: #545454;
+  --colour-light-grey: #888;
   --colour-border: #ddd;
 }
 
@@ -113,7 +114,7 @@ footer a {
 }
 
 .PageContent .Lines {
-  color: var(--colour-grey);
+  color: var(--colour-light-grey);
   user-select: none;
   width: 3ch;
   display: inline-block;
@@ -153,6 +154,21 @@ footer a {
   margin-top: 20px;
   margin-bottom: 10px;
 }
+
+.SearchForm .ModeSelection {
+  margin-bottom: 10px;
+}
+
+.SearchForm .ModeSelection label {
+  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.SearchForm .ModeSelection input {
+  margin-right: 5px;
+}
+
 
 .SearchForm button {
   appearance: none;

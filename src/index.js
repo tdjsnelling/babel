@@ -4,6 +4,7 @@ import Pug from "koa-pug";
 import serve from "koa-static";
 import path from "path";
 import memoize from "memoizee";
+import { words } from "popular-english-words";
 import { LINES, CHARS, ALPHA } from "./constants.js";
 import {
   checkBounds,
@@ -72,7 +73,7 @@ router
     await ctx.render("page", { info, lines, prevPage, nextPage });
   })
   .get("/search", async (ctx) => {
-    let { content } = ctx.request.query;
+    let { content, mode } = ctx.request.query;
 
     if (!content || content.replace(/ /g, "") === "") {
       await ctx.render("search");
@@ -87,19 +88,61 @@ router
       return;
     }
 
-    content = content
-      .split("\n")
-      .map((line) => {
-        let chars = line.split("");
-        chars.forEach((char, i) => {
-          if (!ALPHA.includes(char)) chars[i] = " ";
-        });
-        if (chars.length < CHARS) {
-          chars = chars.concat(Array(CHARS - line.length).fill(" "));
-        }
-        return chars.join("");
-      })
-      .join("");
+    if (!mode || mode === "empty") {
+      content = content
+        .split("\n")
+        .map((line) => {
+          let chars = line.split("");
+          chars.forEach((char, i) => {
+            if (!ALPHA.includes(char)) chars[i] = " ";
+          });
+          if (chars.length < CHARS) {
+            chars = chars.concat(Array(CHARS - line.length).fill(" "));
+          }
+          return chars.join("");
+        })
+        .join("");
+    } else if (mode === "chars") {
+      content = content.replace(/\r/g, "").replace(/\n/g, "");
+      let page = "";
+
+      const randomStartPosition =
+        Math.floor(Math.random() * LINES * CHARS) - content.length;
+
+      while (page.length < randomStartPosition) {
+        page += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+      }
+      page += content;
+      while (page.length < LINES * CHARS) {
+        page += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+      }
+
+      content = page;
+    } else if (mode === "words") {
+      const popularWords = words.getMostPopular(3000);
+
+      content = content.replace(/\r/g, "").replace(/\n/g, "");
+      let page = "";
+
+      const randomStartPosition =
+        Math.floor(Math.random() * LINES * CHARS) - content.length;
+
+      while (page.length < randomStartPosition) {
+        page += `${
+          popularWords[Math.floor(Math.random() * popularWords.length)]
+        } `;
+      }
+      page += `${content} `;
+      while (page.length < LINES * CHARS) {
+        page += `${
+          popularWords[Math.floor(Math.random() * popularWords.length)]
+        } `;
+      }
+
+      if (page.length > LINES * CHARS) page = page.slice(0, LINES * CHARS);
+
+      content = page;
+    }
 
     while (content.length < LINES * CHARS) content += " ";
 

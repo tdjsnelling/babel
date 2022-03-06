@@ -17,7 +17,17 @@ html(lang="en")
                 em “...the translation of every book into every language...”
 
         form.SearchForm
-            textarea(name="content", rows="10", placeholder="Enter up to 3200 characters from a-z, comma, full-stop, or space. New lines are preserved.")
+            textarea(name="content", rows="10", placeholder="Enter up to 3200 characters from a-z, comma, full-stop, or space. New lines are preserved in empty page mode.")
+            div.ModeSelection
+                label
+                    input(type="radio", name="mode", value="empty", checked=true)
+                    | On an empty page
+                label
+                    input(type="radio", name="mode", value="chars")
+                    | With random characters
+                label
+                    input(type="radio", name="mode", value="words")
+                    | With random English words
             button Search
 
         include includes/footer.pug
