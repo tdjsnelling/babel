@@ -9,8 +9,6 @@ if (toHighlight) {
   endLine = parseInt(endLine);
   endCol = parseInt(endCol);
 
-  console.log(startLine, endLine);
-
   const content = document.querySelector(".PageContent pre");
   const lines = content.innerText.split("\n");
 
