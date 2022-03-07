@@ -133,6 +133,10 @@ footer a {
   line-height: 1.2;
 }
 
+.PageContent strong {
+  background-color: yellow;
+}
+
 .PageNavigation {
   display: flex;
   align-items: center;

@@ -14,6 +14,11 @@ import {
   getIdentifierFromSequentialPageNumber,
   getRandomPageIdentifier,
 } from "./babel.js";
+import {
+  searchEmptyPage,
+  searchRandomChars,
+  searchRandomWords,
+} from "./search.js";
 
 const getPageWithMeta = (identifier) => {
   const { info, lines } = getPage(identifier);
@@ -73,14 +78,17 @@ router
     await ctx.render("page", { info, lines, prevPage, nextPage });
   })
   .get("/search", async (ctx) => {
-    let { content, mode } = ctx.request.query;
+    const { content, mode } = ctx.request.query;
 
     if (!content || content.replace(/ /g, "") === "") {
       await ctx.render("search");
       return;
     }
 
-    if (content.replace(/\r/g, "").replace(/\n/g, "").length > LINES * CHARS) {
+    const lowerCase = content.toLowerCase();
+    const contentNoNewlines = lowerCase.replace(/\r/g, "").replace(/\n/g, "");
+
+    if (contentNoNewlines.length > LINES * CHARS) {
       ctx.status = 400;
       ctx.body = `Content cannot be longer than ${
         LINES * CHARS
@@ -88,68 +96,29 @@ router
       return;
     }
 
+    let reference;
+    let highlightLocation;
+
     if (!mode || mode === "empty") {
-      content = content
-        .split("\n")
-        .map((line) => {
-          let chars = line.split("");
-          chars.forEach((char, i) => {
-            if (!ALPHA.includes(char)) chars[i] = " ";
-          });
-          if (chars.length < CHARS) {
-            chars = chars.concat(Array(CHARS - line.length).fill(" "));
-          }
-          return chars.join("");
-        })
-        .join("");
+      const { identifier } = searchEmptyPage(lowerCase);
+      reference = identifier;
     } else if (mode === "chars") {
-      content = content.replace(/\r/g, "").replace(/\n/g, "");
-      let page = "";
-
-      const randomStartPosition =
-        Math.floor(Math.random() * LINES * CHARS) - content.length;
-
-      while (page.length < randomStartPosition) {
-        page += ALPHA[Math.floor(Math.random() * ALPHA.length)];
-      }
-      page += content;
-      while (page.length < LINES * CHARS) {
-        page += ALPHA[Math.floor(Math.random() * ALPHA.length)];
-      }
-
-      content = page;
+      const { identifier, highlight } = searchRandomChars(lowerCase);
+      reference = identifier;
+      highlightLocation = highlight;
     } else if (mode === "words") {
-      const popularWords = words.getMostPopular(3000);
-
-      content = content.replace(/\r/g, "").replace(/\n/g, "");
-      let page = "";
-
-      const randomStartPosition =
-        Math.floor(Math.random() * LINES * CHARS) - content.length;
-
-      while (page.length < randomStartPosition) {
-        page += `${
-          popularWords[Math.floor(Math.random() * popularWords.length)]
-        } `;
-      }
-      page += `${content} `;
-      while (page.length < LINES * CHARS) {
-        page += `${
-          popularWords[Math.floor(Math.random() * popularWords.length)]
-        } `;
-      }
-
-      if (page.length > LINES * CHARS) page = page.slice(0, LINES * CHARS);
-
-      content = page;
+      const { identifier, highlight } = searchRandomWords(lowerCase);
+      reference = identifier;
+      highlightLocation = highlight;
     }
 
-    while (content.length < LINES * CHARS) content += " ";
-
-    const identifier = reverseLookupPage(content.toLowerCase());
+    let refUrl = `/ref/${reference}`;
+    if (highlightLocation) {
+      refUrl += `?highlight=${highlightLocation}`;
+    }
 
     ctx.status = 302;
-    ctx.redirect(`/ref/${identifier}`);
+    ctx.redirect(refUrl);
   })
   .get("/random", (ctx) => {
     const randomIdentifier = getRandomPageIdentifier();
