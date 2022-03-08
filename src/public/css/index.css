@@ -24,6 +24,7 @@ body {
   font-size: 14px;
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: none;
 }
 
 a {
@@ -110,13 +111,12 @@ footer a {
 
 .PageContent {
   display: grid;
-  grid-template-columns: 3ch 80ch;
+  grid-template-columns: 26px 672px;
 }
 
 .PageContent .Lines {
   color: var(--colour-light-grey);
   user-select: none;
-  width: 3ch;
   display: inline-block;
   position: sticky;
   left: 0;
@@ -127,7 +127,6 @@ footer a {
 }
 
 .PageContent pre {
-  width: 80ch;
   font-family: "Source Code Pro", monospace;
   font-size: 14px;
   line-height: 1.2;
@@ -184,6 +183,7 @@ footer a {
   border-radius: 2px;
   background-color: antiquewhite;
   color: var(--colour-fg);
+  cursor: pointer;
 }
 
 .InfoBox {

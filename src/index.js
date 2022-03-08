@@ -4,12 +4,10 @@ import Pug from "koa-pug";
 import serve from "koa-static";
 import path from "path";
 import memoize from "memoizee";
-import { words } from "popular-english-words";
-import { LINES, CHARS, ALPHA } from "./constants.js";
+import { LINES, CHARS } from "./constants.js";
 import {
   checkBounds,
   getPage,
-  reverseLookupPage,
   getSequentialPageNumberFromIdentifier,
   getIdentifierFromSequentialPageNumber,
   getRandomPageIdentifier,

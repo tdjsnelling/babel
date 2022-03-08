@@ -16,8 +16,6 @@ BigNumber.config({ RANGE: 1e4 });
 
 const roomRegex = /[0-9a-z]+/;
 
-const padNum = (num) => (num < 10 ? `0${num}` : `${num}`);
-
 // Check that all parts of an identifier are valid
 export const checkBounds = (room, wall, shelf, book, page) => {
   if (!roomRegex.test(room))
