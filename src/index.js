@@ -59,6 +59,10 @@ router.get("/", async (ctx) => {
   await ctx.render("index");
 });
 
+router.get("/limitations", async (ctx) => {
+  await ctx.render("limitations");
+});
+
 router
   .get("/ref/:identifier", async (ctx) => {
     const { identifier } = ctx.params;

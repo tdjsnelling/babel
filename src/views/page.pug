@@ -3,6 +3,7 @@ html(lang="en")
     include includes/head.pug
     body
         include includes/nav.pug
+
         div.PageInfo
             pre room #{info.shortRoom} / wall #{info.wall} / shelf #{info.shelf} / book #{info.book} / page #{info.page}
             - if (info.room !== info.shortRoom)

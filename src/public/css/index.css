@@ -81,6 +81,13 @@ footer a {
   margin-top: 15px;
 }
 
+.BodyStyle h2,
+.BodyStyle h3,
+.BodyStyle h4,
+.BodyStyle h5 {
+  font-size: 14px;
+}
+
 .PageInfo {
   margin-bottom: 20px;
 }
@@ -171,7 +178,6 @@ footer a {
 .SearchForm .ModeSelection input {
   margin-right: 5px;
 }
-
 
 .SearchForm button {
   appearance: none;
