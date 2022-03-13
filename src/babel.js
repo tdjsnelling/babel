@@ -5,11 +5,12 @@ import {
   SHELVES,
   BOOKS,
   PAGES,
+  LINES,
   CHARS,
   N,
   c,
   i,
-  LINES,
+  totalRooms,
 } from "./constants.js";
 
 BigNumber.config({ RANGE: 1e4 });
@@ -21,6 +22,11 @@ export const checkBounds = (room, wall, shelf, book, page) => {
   if (!roomRegex.test(room))
     throw new Error(
       `Room identifier must only include digits 0-9 and lower case letters a-z`
+    );
+
+  if (new BigNumber(room, 36).isGreaterThan(totalRooms))
+    throw new Error(
+      `Room cannot be larger than ${totalRooms.toPrecision(4, 1)}`
     );
 
   if (isNaN(wall) || isNaN(shelf) || isNaN(book) || isNaN(page))
@@ -141,13 +147,13 @@ export const getPage = (identifier) => {
 };
 
 export const getRandomPageIdentifier = () => {
-  const maxRoom = new BigNumber("10e+4677")
-    .dividedToIntegerBy(BOOKS * SHELVES * WALLS)
-    .multipliedBy(Math.random());
+  const rRoom = new BigNumber(
+    totalRooms.multipliedBy(Math.random()).toFixed(0, 1)
+  ).toString(36);
   const rWall = Math.ceil(WALLS * Math.random());
   const rShelf = Math.ceil(SHELVES * Math.random());
   const rBook = Math.ceil(BOOKS * Math.random());
   const rPage = Math.ceil(PAGES * Math.random());
 
-  return [maxRoom.toString(36), rWall, rShelf, rBook, rPage].join(".");
+  return [rRoom, rWall, rShelf, rBook, rPage].join(".");
 };
