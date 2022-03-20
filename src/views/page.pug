@@ -27,8 +27,15 @@ html(lang="en")
                 div
             - else
                 a(href=`/ref/${prevPage}`) &larr; Previous
+            - let p = 0
+            select
+                while p < 410
+                    - const selected = parseInt(p) + 1 === parseInt(info.page)
+                    option(value=(p + 1), selected=selected)= p + 1
+                    - p++
             a(href=`/ref/${nextPage}`) Next &rarr;
 
         include includes/footer.pug
 
     script(src="/js/highlightText.js", type="text/javascript")
+    script(src="/js/pageSelector.js", type="text/javascript")
