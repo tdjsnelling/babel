@@ -150,7 +150,7 @@ footer a {
   margin-top: 20px;
 }
 
-.SearchForm textarea {
+.SearchForm textarea, .BrowseForm textarea {
   appearance: none;
   display: block;
   width: 100%;
@@ -161,7 +161,6 @@ footer a {
   font-size: 14px;
   border: 1px solid grey;
   border-radius: 2px;
-  margin-top: 20px;
   margin-bottom: 10px;
 }
 
@@ -179,7 +178,7 @@ footer a {
   margin-right: 5px;
 }
 
-.SearchForm button {
+.SearchForm button, .BrowseForm button {
   appearance: none;
   width: 100%;
   padding: 10px;
@@ -198,4 +197,30 @@ footer a {
   padding: 10px;
   color: var(--colour-grey);
   font-size: 13px;
+}
+
+.BrowseForm label > *:last-child {
+  margin-top: 5px;
+}
+
+.BrowseForm label span {
+  color: var(--colour-light-grey);
+}
+
+.BrowseForm .Numbers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 10px;
+  margin-bottom: 10px;
+}
+
+.BrowseForm .Numbers input {
+  appearance: none;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-family: "Source Code Pro", monospace;
+  font-size: 14px;
+  border: 1px solid grey;
+  border-radius: 2px;
 }

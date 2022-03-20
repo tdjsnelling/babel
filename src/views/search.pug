@@ -4,7 +4,7 @@ html(lang="en")
     body
         include includes/nav.pug
 
-        div.BodyStyle
+        div.BodyStyle(style="margin-bottom: 20px;")
             p Any text you can come up with will already have been written down, somewhere deep within the library. All that remains is to find it.
             p
                 em “...the detailed history of the future...”
@@ -18,7 +18,7 @@ html(lang="en")
                 em “...the translation of every book into every language...”
 
         form.SearchForm
-            textarea(name="content", rows="10", placeholder="Enter up to 3200 characters from a-z, comma, full-stop, or space. New lines are preserved in empty page mode.")
+            textarea(name="content", rows=10, required=true, placeholder="Enter up to 3200 characters from a-z, comma, full-stop, or space. New lines are preserved in empty page mode.")
             div.ModeSelection
                 label
                     input(type="radio", name="mode", value="empty", checked=true)
