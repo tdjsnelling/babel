@@ -23,17 +23,22 @@ html(lang="en")
                     | #{lines.join('\n')}
 
         div.PageNavigation
-            - if (info.identifier === '1.1.1.1.1')
-                div
-            - else
+            - if (prevPage !== null)
                 a(href=`/ref/${prevPage}`) &larr; Previous
+            - else
+                div
+
             - let p = 0
             select
                 while p < 410
                     - const selected = parseInt(p) + 1 === parseInt(info.page)
                     option(value=(p + 1), selected=selected)= p + 1
                     - p++
-            a(href=`/ref/${nextPage}`) Next &rarr;
+
+            - if (nextPage !== null)
+                a(href=`/ref/${nextPage}`) Next &rarr;
+            - else
+                div
 
         include includes/footer.pug
 

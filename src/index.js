@@ -4,7 +4,7 @@ import Pug from "koa-pug";
 import serve from "koa-static";
 import path from "path";
 import memoize from "memoizee";
-import { LINES, CHARS } from "./constants.js";
+import { LINES, CHARS, uniquePages } from "./constants.js";
 import {
   checkBounds,
   getPage,
@@ -23,8 +23,12 @@ const getPageWithMeta = (identifier) => {
 
   const pageNumber = getSequentialPageNumberFromIdentifier(identifier);
 
-  const prevPage = getIdentifierFromSequentialPageNumber(pageNumber.minus(1));
-  const nextPage = getIdentifierFromSequentialPageNumber(pageNumber.plus(1));
+  const prevPage = pageNumber.isGreaterThan(1)
+    ? getIdentifierFromSequentialPageNumber(pageNumber.minus(1))
+    : null;
+  const nextPage = pageNumber.isLessThan(uniquePages.minus(1))
+    ? getIdentifierFromSequentialPageNumber(pageNumber.plus(1))
+    : null;
 
   return { info, lines, prevPage, nextPage };
 };
@@ -134,5 +138,5 @@ router
   });
 
 app.use(router.routes());
-app.listen(5000);
-console.log("listening on http://localhost:5000");
+app.listen(12345);
+console.log("listening on http://localhost:12345");
