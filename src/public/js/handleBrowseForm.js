@@ -15,11 +15,10 @@ form.onsubmit = (e) => {
 
 const room = form.querySelector('[name="room"]');
 room.oninput = (e) => {
-  console.log(e);
   if (
     (!e.data || !/[a-z0-9]/.test(e.data) || e.target.value.length === 3004) &&
-    (e.inputType !== "deleteContentBackward" ||
-      e.inputType !== "deleteContentForward")
+    e.inputType !== "deleteContentBackward" &&
+    e.inputType !== "deleteContentForward"
   ) {
     e.target.value = e.target.value.slice(0, -1);
   }
