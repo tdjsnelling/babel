@@ -88,6 +88,11 @@ footer a {
   font-size: 14px;
 }
 
+.BodyStyle ul,
+.BodyStyle ol {
+  padding-left: 18px;
+}
+
 .PageInfo {
   margin-bottom: 20px;
 }
@@ -223,4 +228,11 @@ footer a {
   font-size: 14px;
   border: 1px solid grey;
   border-radius: 2px;
+}
+
+.super {
+  font-size: 12px;
+  vertical-align: top;
+  display: inline-block;
+  margin-top: -2px;
 }

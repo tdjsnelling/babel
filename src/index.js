@@ -67,6 +67,10 @@ router.get("/limitations", async (ctx) => {
   await ctx.render("limitations");
 });
 
+router.get("/faq", async (ctx) => {
+  await ctx.render("faq");
+});
+
 router.get("/browse", async (ctx) => {
   await ctx.render("browse");
 });
