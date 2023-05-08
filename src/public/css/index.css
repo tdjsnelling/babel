@@ -77,6 +77,10 @@ footer a {
   color: var(--colour-grey);
 }
 
+.BodyStyle {
+  position: relative;
+}
+
 .BodyStyle > * + * {
   margin-top: 15px;
 }
@@ -239,6 +243,15 @@ footer a {
   font-size: 14px;
   border: 1px solid grey;
   border-radius: 2px;
+}
+
+.Librarian {
+  width: 300px;
+  float: right;
+  margin-left: 20px;
+  margin-bottom: 15px;
+  opacity: 90%;
+  border-radius: 4px;
 }
 
 .super {
