@@ -246,12 +246,23 @@ footer a {
 }
 
 .Librarian {
-  width: 300px;
-  float: right;
-  margin-left: 20px;
+  width: 100%;
+  max-width: 400px;
   margin-bottom: 15px;
   opacity: 90%;
   border-radius: 4px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media screen and (min-width: 590px) {
+  .Librarian {
+    width: 300px;
+    float: right;
+    margin-left: 20px;
+    margin-bottom: 15px;
+  }
 }
 
 .super {

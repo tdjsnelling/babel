@@ -141,6 +141,7 @@ router
     ctx.redirect(`/ref/${randomIdentifier}`);
   });
 
+const port = process.env.PORT || 5000;
 app.use(router.routes());
-app.listen(5000);
-console.log("listening on http://localhost:5000");
+app.listen(port);
+console.log(`listening on http://localhost:${port}`);
