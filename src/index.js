@@ -78,13 +78,21 @@ router.get("/browse", async (ctx) => {
 router
   .get("/ref/:identifier", async (ctx) => {
     const { identifier } = ctx.params;
+    const splitIdentifier = identifier.split(".");
 
     try {
-      checkBounds(...identifier.split("."));
+      checkBounds(...splitIdentifier);
     } catch (e) {
       ctx.status = 400;
       ctx.body = e.message;
       return;
+    }
+
+    if (identifier.startsWith("0")) {
+      const [room, ...rest] = splitIdentifier;
+      const unpaddedRoom = room.replace(/^0+/, "");
+      ctx.status = 301;
+      return ctx.redirect(`/ref/${[unpaddedRoom, ...rest].join(".")}`);
     }
 
     const { info, lines, prevPage, nextPage } = getPageWithMetaMemo(identifier);

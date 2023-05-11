@@ -24,6 +24,9 @@ export const checkBounds = (room, wall, shelf, book, page) => {
       `Room identifier must only include digits 0-9 and lower case letters a-z`
     );
 
+  if (new BigNumber(room, 36).isLessThan(1))
+    throw new Error(`Room cannot be smaller than 1`);
+
   if (new BigNumber(room, 36).isGreaterThan(totalRooms))
     throw new Error(
       `Room cannot be larger than ${totalRooms.toPrecision(4, 1)}`
