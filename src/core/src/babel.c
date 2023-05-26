@@ -268,10 +268,10 @@ void generateContent(char *identifier, mpz_t C, mpz_t N, int prettyFlag) {
 
 char *lookupContent(char *content, mpz_t I, mpz_t N, int page) {
   char paddedContent[BOOK_LENGTH + 1] = "";
+  strncpy(paddedContent, content, sizeof(paddedContent) - 1);
+  paddedContent[sizeof(paddedContent) - 1] = '\0';
+
   int i;
-  for (i = 0; i < strlen(content); i++) {
-    paddedContent[i] = content[i];
-  }
   if (strlen(paddedContent) < BOOK_LENGTH) {
     for (i = strlen(content); i < BOOK_LENGTH; i++) {
       paddedContent[i] = ' ';

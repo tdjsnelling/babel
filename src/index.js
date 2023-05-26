@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
 import { spawnSync } from "node:child_process";
-import { PAGES, LINES, CHARS } from "./constants.js";
+import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants.js";
 import {
   getEmptyBookContent,
   getRandomCharsBookContent,
@@ -46,6 +46,20 @@ const getBookmark = async (roomOrUid) => {
       return bookmark;
     }
   }
+};
+
+const checkBounds = (wall, shelf, book, page) => {
+  if (isNaN(wall) || isNaN(shelf) || isNaN(book) || isNaN(page))
+    throw new Error("Wall, book, shelf, page must all be integers");
+
+  if (wall < 1 || wall > WALLS)
+    throw new Error(`Wall must be between 1 and ${WALLS}. Got: ${wall}`);
+  if (shelf < 1 || shelf > SHELVES)
+    throw new Error(`Shelf must be between 1 and ${SHELVES}. Got: ${shelf}`);
+  if (book < 1 || book > BOOKS)
+    throw new Error(`Book must be between 1 and ${BOOKS}. Got: ${book}`);
+  if (page < 1 || page > PAGES)
+    throw new Error(`Page must be between 1 and ${PAGES}. Got: ${page}`);
 };
 
 (async () => {
@@ -89,12 +103,19 @@ const getBookmark = async (roomOrUid) => {
     await ctx.render("browse");
   });
 
-  // TODO check bounds here
   router.get("/ref/:identifier", async (ctx) => {
     const { identifier } = ctx.params;
     const [roomOrUid, ...rest] = identifier.split(".");
-    const bookmark = await getBookmark(roomOrUid);
 
+    try {
+      checkBounds(...rest);
+    } catch (e) {
+      ctx.status = 400;
+      ctx.body = e.message;
+      return;
+    }
+
+    const bookmark = await getBookmark(roomOrUid);
     if (bookmark.uid !== roomOrUid) {
       ctx.status = 302;
       ctx.redirect(`/ref/${[bookmark.uid, ...rest].join(".")}`);
@@ -187,8 +208,6 @@ const getBookmark = async (roomOrUid) => {
     } else if (mode === "words") {
       ({ book, highlight } = getRandomWordsBookContent(lowerCase));
     }
-
-    console.log(book.slice(0, 100), book.length);
 
     const filename = `${Date.now()}`;
     fs.writeFileSync(filename, book);
