@@ -20,11 +20,12 @@
   },
   "dependencies": {
     "@koa/router": "^10.1.1",
-    "bignumber.js": "^9.0.2",
+    "dotenv": "^16.0.3",
     "koa": "^2.13.4",
     "koa-pug": "^5.0.0",
     "koa-static": "^5.0.0",
-    "memoizee": "^0.4.15",
-    "popular-english-words": "^1.0.2"
+    "mongoose": "^7.2.1",
+    "popular-english-words": "^1.0.2",
+    "uuid": "^9.0.0"
   }
 }

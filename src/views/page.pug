@@ -9,7 +9,7 @@ html(lang="en")
             - if (info.room !== info.shortRoom)
                 details
                     summary View full page reference
-                    p #{info.identifier}
+                    p #{info.room}.#{info.wall}.#{info.shelf}.#{info.book}.#{info.page}
 
         div.PageContentWrapper
             div.PageContent

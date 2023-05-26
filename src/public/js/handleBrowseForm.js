@@ -16,7 +16,7 @@ form.onsubmit = (e) => {
 const room = form.querySelector('[name="room"]');
 room.oninput = (e) => {
   if (
-    (!e.data || !/[a-z0-9]/.test(e.data) || e.target.value.length === 3004) &&
+    (!e.data || !/[a-zA-Z0-9]/.test(e.data)) &&
     e.inputType !== "deleteContentBackward" &&
     e.inputType !== "deleteContentForward"
   ) {

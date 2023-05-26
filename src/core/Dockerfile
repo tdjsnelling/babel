@@ -1,4 +1,5 @@
-FROM node:18-buster
+FROM ubuntu:22.04
+
 WORKDIR /app
 
 RUN apt update && apt -y install \
@@ -16,18 +17,11 @@ RUN wget --quiet https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz && \
     cd .. && \
     rm -r gmp-6.2.1*
 
-COPY package.json ./package.json
-COPY yarn.lock ./yarn.lock
-
-RUN yarn install --production
-
 COPY src ./src
-COPY src/core/numbers ./numbers
+COPY Makefile ./Makefile
+COPY numbers ./numbers
 
-RUN cd /app/src/core && \
-    mkdir bin && \
-    make
+RUN mkdir bin
+RUN make
 
-EXPOSE 3000
-
-CMD ["yarn", "start"]
+CMD ["./bin/babel", "-i", "1.1.1.1.1"]

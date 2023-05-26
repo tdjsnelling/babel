@@ -2,104 +2,163 @@ import Koa from "koa";
 import Router from "@koa/router";
 import Pug from "koa-pug";
 import serve from "koa-static";
+import mongoose from "mongoose";
+import { v4 as uuid, validate } from "uuid";
+import dotenv from "dotenv";
 import path from "path";
-import memoize from "memoizee";
-import { LINES, CHARS, uniquePages } from "./constants.js";
+import fs from "fs";
+import { spawnSync } from "node:child_process";
+import { PAGES, LINES, CHARS } from "./constants.js";
 import {
-  checkBounds,
-  getPage,
-  getSequentialPageNumberFromIdentifier,
-  getIdentifierFromSequentialPageNumber,
-  getRandomPageIdentifier,
-} from "./babel.js";
-import {
-  searchEmptyPage,
-  searchRandomChars,
-  searchRandomWords,
+  getEmptyBookContent,
+  getRandomCharsBookContent,
+  getRandomWordsBookContent,
 } from "./search.js";
+import Bookmark from "./schema/bookmark.js";
 
-const getPageWithMeta = (identifier) => {
-  const { info, lines } = getPage(identifier);
+dotenv.config();
 
-  const pageNumber = getSequentialPageNumberFromIdentifier(identifier);
-
-  const prevPage = pageNumber.isGreaterThan(1)
-    ? getIdentifierFromSequentialPageNumber(pageNumber.minus(1))
-    : null;
-  const nextPage = pageNumber.isLessThan(uniquePages.minus(1))
-    ? getIdentifierFromSequentialPageNumber(pageNumber.plus(1))
-    : null;
-
-  return { info, lines, prevPage, nextPage };
+const runCoreTask = (cmd) => {
+  const process = spawnSync("bash", ["-c", cmd]);
+  console.log(process);
+  return {
+    stdout: process.stdout?.length ? process.stdout.toString() : undefined,
+    stderr: process.stderr?.length ? process.stderr.toString() : undefined,
+  };
 };
 
-const getPageWithMetaMemo = memoize(getPageWithMeta, {
-  maxAge: 1000 * 60 * 30,
-});
+const getBookmark = async (roomOrUid) => {
+  const isUUID = validate(roomOrUid);
+  if (isUUID) {
+    return Bookmark.findOne({ uid: roomOrUid });
+  } else {
+    let room = roomOrUid;
+    if (room.startsWith("0")) {
+      room = room.replace(/^0+/, "");
+    }
+    const bookmark = await Bookmark.findOne({ room });
+    if (bookmark) {
+      return bookmark;
+    } else {
+      const uid = uuid();
+      const bookmark = new Bookmark({ uid, room });
+      await bookmark.save();
+      return bookmark;
+    }
+  }
+};
 
-const app = new Koa();
-const router = new Router();
-const pug = new Pug({
-  viewPath: path.resolve(path.resolve(), "src/views"),
-  app,
-});
+(async () => {
+  await mongoose.connect(process.env.MONGO_URL);
 
-app.use(serve("src/public"));
+  const app = new Koa();
+  const router = new Router();
+  const pug = new Pug({
+    viewPath: path.resolve(path.resolve(), "src/views"),
+    app,
+  });
 
-app.use(async (ctx, next) => {
-  await next();
-  const rt = ctx.response.get("X-Response-Time");
-  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
-});
+  app.use(serve("src/public"));
 
-app.use(async (ctx, next) => {
-  const start = Date.now();
-  await next();
-  const ms = Date.now() - start;
-  ctx.set("X-Response-Time", `${ms}ms`);
-});
+  app.use(async (ctx, next) => {
+    await next();
+    const rt = ctx.response.get("X-Response-Time");
+    console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+  });
 
-router.get("/", async (ctx) => {
-  await ctx.render("index");
-});
+  app.use(async (ctx, next) => {
+    const start = Date.now();
+    await next();
+    const ms = Date.now() - start;
+    ctx.set("X-Response-Time", `${ms}ms`);
+  });
 
-router.get("/limitations", async (ctx) => {
-  await ctx.render("limitations");
-});
+  router.get("/", async (ctx) => {
+    await ctx.render("index");
+  });
 
-router.get("/faq", async (ctx) => {
-  await ctx.render("faq");
-});
+  router.get("/limitations", async (ctx) => {
+    await ctx.render("limitations");
+  });
 
-router.get("/browse", async (ctx) => {
-  await ctx.render("browse");
-});
+  router.get("/faq", async (ctx) => {
+    await ctx.render("faq");
+  });
 
-router
-  .get("/ref/:identifier", async (ctx) => {
+  router.get("/browse", async (ctx) => {
+    await ctx.render("browse");
+  });
+
+  // TODO check bounds here
+  router.get("/ref/:identifier", async (ctx) => {
     const { identifier } = ctx.params;
-    const splitIdentifier = identifier.split(".");
+    const [roomOrUid, ...rest] = identifier.split(".");
+    const bookmark = await getBookmark(roomOrUid);
 
-    try {
-      checkBounds(...splitIdentifier);
-    } catch (e) {
-      ctx.status = 400;
-      ctx.body = e.message;
+    if (bookmark.uid !== roomOrUid) {
+      ctx.status = 302;
+      ctx.redirect(`/ref/${[bookmark.uid, ...rest].join(".")}`);
       return;
     }
 
-    if (identifier.startsWith("0")) {
-      const [room, ...rest] = splitIdentifier;
-      const unpaddedRoom = room.replace(/^0+/, "");
-      ctx.status = 301;
-      return ctx.redirect(`/ref/${[unpaddedRoom, ...rest].join(".")}`);
+    const filename = `${Date.now()}`;
+    fs.writeFileSync(filename, [bookmark.room, ...rest].join("."));
+
+    const task = runCoreTask(
+      `./src/core/bin/babel -f ${filename} -i > ${filename}-out`
+    );
+
+    fs.unlinkSync(filename);
+
+    if (task.stderr) {
+      ctx.status = 500;
+      ctx.body = task.stderr;
+      return;
     }
 
-    const { info, lines, prevPage, nextPage } = getPageWithMetaMemo(identifier);
+    const data = fs.readFileSync(`${filename}-out`, {
+      encoding: "utf8",
+      flag: "r",
+    });
 
-    await ctx.render("page", { info, lines, prevPage, nextPage });
-  })
-  .get("/search", async (ctx) => {
+    const [
+      content,
+      shortRoom,
+      room,
+      wall,
+      shelf,
+      book,
+      page,
+      prevPage,
+      nextPage,
+    ] = data.split("/");
+
+    fs.unlinkSync(`${filename}-out`);
+
+    const [prevRoom, ...prevRest] = prevPage.split(".");
+    const prevBookmark = await getBookmark(prevRoom);
+
+    const [nextRoom, ...nextRest] = nextPage.split(".");
+    const nextBookmark = await getBookmark(nextRoom);
+
+    await ctx.render("page", {
+      info: {
+        identifier,
+        uid: bookmark.uid,
+        shortRoom,
+        room,
+        wall,
+        shelf,
+        book,
+        page,
+      },
+      lines: content.match(new RegExp(`.{${CHARS}}`, "g")),
+      prevPage: [prevBookmark.uid, ...prevRest].join("."),
+      nextPage: [nextBookmark.uid, ...nextRest].join("."),
+    });
+  });
+
+  router.get("/search", async (ctx) => {
     const { content, mode } = ctx.request.query;
 
     if (!content || content.replace(/ /g, "") === "") {
@@ -110,46 +169,92 @@ router
     const lowerCase = content.toLowerCase();
     const contentNoNewlines = lowerCase.replace(/\r/g, "").replace(/\n/g, "");
 
-    if (contentNoNewlines.length > LINES * CHARS) {
+    if (contentNoNewlines.length > PAGES * LINES * CHARS) {
       ctx.status = 400;
       ctx.body = `Content cannot be longer than ${
-        LINES * CHARS
+        PAGES * LINES * CHARS
       } characters long.`;
       return;
     }
 
-    let reference;
-    let highlightLocation;
+    let book;
+    let highlight;
 
     if (!mode || mode === "empty") {
-      const { identifier } = searchEmptyPage(lowerCase);
-      reference = identifier;
+      book = getEmptyBookContent(lowerCase);
     } else if (mode === "chars") {
-      const { identifier, highlight } = searchRandomChars(lowerCase);
-      reference = identifier;
-      highlightLocation = highlight;
+      ({ book, highlight } = getRandomCharsBookContent(lowerCase));
     } else if (mode === "words") {
-      const { identifier, highlight } = searchRandomWords(lowerCase);
-      reference = identifier;
-      highlightLocation = highlight;
+      ({ book, highlight } = getRandomWordsBookContent(lowerCase));
     }
 
-    let refUrl = `/ref/${reference}`;
-    if (highlightLocation) {
-      refUrl += `?highlight=${highlightLocation}`;
+    console.log(book.slice(0, 100), book.length);
+
+    const filename = `${Date.now()}`;
+    fs.writeFileSync(filename, book);
+
+    let pageFlag = "";
+    if (highlight) {
+      const { startLine, startCol, endLine, endCol } = highlight;
+      const page = Math.ceil(parseInt(startLine) / LINES);
+      pageFlag = `-n ${page}`;
+      const newStartLine = startLine - (page - 1) * LINES;
+      const newEndLine = endLine - (page - 1) * LINES;
+      highlight = [newStartLine, startCol, newEndLine, endCol].join(":");
+    }
+
+    const task = runCoreTask(
+      `./src/core/bin/babel ${pageFlag} -f ${filename} -c > ${filename}-out`
+    );
+
+    fs.unlinkSync(filename);
+
+    if (task.stderr) {
+      ctx.status = 500;
+      ctx.body = task.stderr;
+      return;
+    }
+
+    const data = fs.readFileSync(`${filename}-out`, {
+      encoding: "utf8",
+      flag: "r",
+    });
+    const [room, ...rest] = data.split(".");
+    fs.unlinkSync(`${filename}-out`);
+    const bookmark = await getBookmark(room);
+
+    let refUrl = `/ref/${[bookmark.uid, ...rest].join(".")}`;
+
+    if (highlight) {
+      refUrl += `?highlight=${highlight}`;
     }
 
     ctx.status = 302;
     ctx.redirect(refUrl);
-  })
-  .get("/random", (ctx) => {
-    const randomIdentifier = getRandomPageIdentifier();
-
-    ctx.status = 302;
-    ctx.redirect(`/ref/${randomIdentifier}`);
   });
 
-const port = process.env.PORT || 5000;
-app.use(router.routes());
-app.listen(port);
-console.log(`listening on http://localhost:${port}`);
+  router.get("/random", async (ctx) => {
+    const filename = `${Date.now()}`;
+
+    const task = runCoreTask(`./src/core/bin/babel -r > ${filename}`);
+
+    if (task.stderr) {
+      ctx.status = 500;
+      ctx.body = task.stderr;
+      return;
+    }
+
+    const data = fs.readFileSync(filename, { encoding: "utf8", flag: "r" });
+    const [room, ...rest] = data.split(".");
+    fs.unlinkSync(filename);
+    const bookmark = await getBookmark(room);
+
+    ctx.status = 302;
+    ctx.redirect(`/ref/${[bookmark.uid, ...rest].join(".")}`);
+  });
+
+  const port = process.env.PORT || 3000;
+  app.use(router.routes());
+  app.listen(port);
+  console.log(`listening on http://localhost:${port}`);
+})();
