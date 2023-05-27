@@ -1,6 +1,6 @@
 const form = document.querySelector("form");
 
-form.onsubmit = (e) => {
+form.onsubmit = async (e) => {
   e.preventDefault();
   const formData = new FormData(form);
   const identifier = [
@@ -10,7 +10,19 @@ form.onsubmit = (e) => {
     formData.get("book"),
     formData.get("page"),
   ].join(".");
-  location.href = `/ref/${identifier}`;
+
+  const res = await fetch("/get-uid", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ identifier }),
+  });
+
+  if (res.ok) {
+    const ref = await res.text();
+    location.href = `/ref/${ref}`;
+  }
 };
 
 const room = form.querySelector('[name="room"]');

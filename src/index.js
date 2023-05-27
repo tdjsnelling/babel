@@ -2,6 +2,7 @@ import Koa from "koa";
 import Router from "@koa/router";
 import Pug from "koa-pug";
 import serve from "koa-static";
+import bodyParser from "koa-bodyparser";
 import mongoose from "mongoose";
 import { v4 as uuid, validate } from "uuid";
 import dotenv from "dotenv";
@@ -74,6 +75,12 @@ const checkBounds = (wall, shelf, book, page) => {
 
   app.use(serve("src/public"));
 
+  app.use(
+    bodyParser({
+      jsonLimit: "3mb",
+    })
+  );
+
   app.use(async (ctx, next) => {
     await next();
     const rt = ctx.response.get("X-Response-Time");
@@ -101,6 +108,13 @@ const checkBounds = (wall, shelf, book, page) => {
 
   router.get("/browse", async (ctx) => {
     await ctx.render("browse");
+  });
+
+  router.post("/get-uid", async (ctx) => {
+    const { identifier } = ctx.request.body;
+    const [roomOrUid, ...rest] = identifier.split(".");
+    const bookmark = await getBookmark(roomOrUid);
+    ctx.body = [bookmark.uid, ...rest].join(".");
   });
 
   router.get("/ref/:identifier", async (ctx) => {
