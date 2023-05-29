@@ -5,31 +5,40 @@ html(lang="en")
         include includes/nav.pug
 
         div.BodyStyle
+            h2 What is the Library of Babel?
+            p The Library of Babel is a fictional library that contains every possible unique book of 1,312,000 characters. Each book has 410 pages of 40 lines of 80 characters each. 410 × 40 × 80 = 1,312,000.
+
             h2 How does it work?
             p In the most simple terms:
             ol
-                li Each page is given a numerical index. The first page of the first book is page 1, the first page of the second book is 411 and so on, until the last page in the entire library — which has the index 29
-                    span.super 3200
+                li Each book is given a numerical index. The first book on the first shelf is book 1, the first book on the second shelf is 33 and so on, until the last book in the entire library — which has the index 29
+                    span.super 1,312,000
                     | .
-                li This number is run through a mathematical function to produce another number of 3200 digits, which we represent in base-29 (29 is the number of characters in our limited alphabet).
+                li This (usually very large) number is run through a mathematical function to produce another unique number of 1,312,000 digits, which we represent in base-29 (29 is the number of characters in our limited alphabet).
                 li Each digit of the base-29 result is mapped to the character at that position in the limited 29 character alphabet (0 → a, 1 → b, ...) to produce the content of that page.
-            p Crucially, the mathematical function is reversible meaning that we can instead give it the contents of a page and determine the page number that it appears on.
+            p Crucially, the mathematical function is reversible meaning that we can instead give it the contents of a book and determine the numerical index of the book that it appears in.
+            p Once a book is generated from it’s index, it is split up and displayed page by page.
             p For a more detailed explanation and to view the source code, please see the
                 |
                 |
                 a(href="https://github.com/tdjsnelling/babel", target="_blank") GitHub repository
                 | .
 
+            h2 The page URLs seem quite short. How can these possibly map to so many unique books?
+            p Well spotted. The
+                |
+                em actual
+
             h2 Is it fake? Is it just creating pages with my search terms and saving them so I can see them again later?
             p No, that would be cheating! It is easy to assume that this website just takes whatever text you search for, inserts it into a random page, and saves that page on disk so that you can find it again at a later date. Similarly with pages of gibberish, what’s to say they aren’t just generated randomly when you request them and saved for later?
-            p Building a Library of Babel this way would require unobtainable amounts of storage. A single page (content only) takes up 3200 bytes, with a single byte per ASCII character. 3200 bytes multiplied by 29
-                span.super 3200
+            p Building a Library of Babel this way would require unobtainable amounts of storage. A single book’s content takes up 1,312,000 bytes (1.31 MB), with a single byte per ASCII character. 1,312,000 bytes multiplied by 29
+                span.super 1,312,000
                 |
-                | unique pages gives us a total size of 1.509×10
-                span.super 4671
+                | unique books gives us a total size of 1.955×10
+                span.super 1,918,660
                 |
-                | TB — an infeasible amount of data to store, to say the least.
-            p Thus to build a virtual Library of Babel, we have to use a method that doesn’t require any storage. Pages are generated on the fly based on their page number, and the same page number will continue to generate the same page forever, unless the algorithm is changed.
+                | TB — an infeasible amount of data to store, to say the very least.
+            p Thus to build a virtual Library of Babel, we have to use a method that doesn’t require any storage. Books are generated on the fly based on their numerical index, and the same index will continue to generate the same book forever, unless the algorithm is changed.
 
             h2 Where can I learn more about the Library of Babel?
             p If you haven’t already read
