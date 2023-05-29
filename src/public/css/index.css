@@ -252,8 +252,7 @@ footer a {
   width: 100%;
   max-width: 400px;
   margin-bottom: 15px;
-  opacity: 90%;
-  border-radius: 4px;
+  border-radius: 8px;
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -268,9 +267,23 @@ footer a {
   }
 }
 
+.Banner {
+  width: 100%;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  display: block;
+}
+
 .super {
   font-size: 12px;
   vertical-align: top;
   display: inline-block;
   margin-top: -2px;
+}
+
+.code {
+  font-family: "Source Code Pro", monospace;
+  background-color: rgba(0, 0, 0, 0.075);
+  padding: 0 3px;
+  border-radius: 2px;
 }

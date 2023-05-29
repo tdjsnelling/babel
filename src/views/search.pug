@@ -5,6 +5,8 @@ html(lang="en")
         include includes/nav.pug
 
         div.BodyStyle(style="margin-bottom: 20px;")
+            img.Librarian(src="/image/librarian-3.png")
+
             p Any text you can come up with will already have been written down, somewhere deep within the library. All that remains is to find it.
             p
                 em “...the detailed history of the future...”
@@ -16,6 +18,10 @@ html(lang="en")
                 em “...the true story of your death...”
             p
                 em “...the translation of every book into every language...”
+            p
+                em “...the interpolations of every book into all books...”
+            p
+                em “...the lost books of Tacitus...”
 
         form.SearchForm
             textarea(name="content", rows=10, required=true, placeholder="Enter up to 3200 characters from a-z, comma, full-stop, or space. New lines are preserved in empty page mode.")
