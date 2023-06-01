@@ -7,8 +7,8 @@ const int PAGES = 410;
 const int LINES = 40;
 const int CHARS = 80;
 
-const int PAGE_LENGTH = LINES * CHARS;
-const int BOOK_LENGTH = PAGES * PAGE_LENGTH;
+#define PAGE_LENGTH 3200
+#define BOOK_LENGTH 1312000
 
 const char *BASE29_ALPHA = "0123456789abcdefghijklmnopqrs";
 const char *BASE62_ALPHA =

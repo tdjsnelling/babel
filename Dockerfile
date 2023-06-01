@@ -18,15 +18,12 @@ RUN wget --quiet https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz && \
 
 COPY package.json ./package.json
 COPY yarn.lock ./yarn.lock
-
-RUN yarn install --production
+COPY binding.gyp ./binding.gyp
 
 COPY src ./src
 COPY src/core/numbers ./numbers
 
-RUN cd /app/src/core && \
-    mkdir bin && \
-    make
+RUN yarn install --production
 
 EXPOSE 3000
 

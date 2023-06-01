@@ -7,8 +7,7 @@ import mongoose from "mongoose";
 import { v4 as uuid, validate } from "uuid";
 import dotenv from "dotenv";
 import path from "path";
-import fs from "fs";
-import { spawnSync } from "node:child_process";
+import bindings from "bindings";
 import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants.js";
 import {
   getEmptyBookContent,
@@ -19,14 +18,7 @@ import Bookmark from "./schema/bookmark.js";
 
 dotenv.config();
 
-const runCoreTask = (cmd) => {
-  const process = spawnSync("bash", ["-c", cmd]);
-  console.log(process);
-  return {
-    stdout: process.stdout?.length ? process.stdout.toString() : undefined,
-    stderr: process.stderr?.length ? process.stderr.toString() : undefined,
-  };
-};
+const babel = bindings("babel");
 
 const getBookmark = async (roomOrUid) => {
   const isUUID = validate(roomOrUid);
@@ -136,51 +128,29 @@ const checkBounds = (wall, shelf, book, page) => {
       return;
     }
 
-    const filename = `${Date.now()}`;
-    fs.writeFileSync(filename, [bookmark.room, ...rest].join("."));
-
-    const task = runCoreTask(
-      `./src/core/bin/babel -f ${filename} -i > ${filename}-out`
-    );
-
-    fs.unlinkSync(filename);
-
-    if (task.stderr) {
-      ctx.status = 500;
-      ctx.body = `babel core error: ${task.stderr}`;
-      return;
-    }
-
-    const data = fs.readFileSync(`${filename}-out`, {
-      encoding: "utf8",
-      flag: "r",
-    });
-
-    const [
+    const {
       content,
-      shortRoom,
+      roomShort,
       room,
       wall,
       shelf,
       book,
       page,
-      prevPage,
-      nextPage,
-    ] = data.split("/");
+      prevIdentifier,
+      nextIdentifier,
+    } = babel.getPage([bookmark.room, ...rest].join("."));
 
-    fs.unlinkSync(`${filename}-out`);
-
-    const [prevRoom, ...prevRest] = prevPage.split(".");
+    const [prevRoom, ...prevRest] = prevIdentifier.split(".");
     const prevBookmark = await getBookmark(prevRoom);
 
-    const [nextRoom, ...nextRest] = nextPage.split(".");
+    const [nextRoom, ...nextRest] = nextIdentifier.split(".");
     const nextBookmark = await getBookmark(nextRoom);
 
     await ctx.render("page", {
       info: {
         identifier,
         uid: bookmark.uid,
-        shortRoom,
+        roomShort,
         room,
         wall,
         shelf,
@@ -223,37 +193,18 @@ const checkBounds = (wall, shelf, book, page) => {
       ({ book, highlight } = getRandomWordsBookContent(lowerCase));
     }
 
-    const filename = `${Date.now()}`;
-    fs.writeFileSync(filename, book);
-
-    let pageFlag = "";
+    let page = 1;
     if (highlight) {
       const { startLine, startCol, endLine, endCol } = highlight;
-      const page = Math.ceil(parseInt(startLine) / LINES);
-      pageFlag = `-n ${page}`;
+      page = Math.ceil(parseInt(startLine) / LINES);
       const newStartLine = startLine - (page - 1) * LINES;
       const newEndLine = endLine - (page - 1) * LINES;
       highlight = [newStartLine, startCol, newEndLine, endCol].join(":");
     }
 
-    const task = runCoreTask(
-      `./src/core/bin/babel ${pageFlag} -f ${filename} -c > ${filename}-out`
-    );
+    const identifier = babel.searchContent(book, page);
 
-    fs.unlinkSync(filename);
-
-    if (task.stderr) {
-      ctx.status = 500;
-      ctx.body = `babel core error: ${task.stderr}`;
-      return;
-    }
-
-    const data = fs.readFileSync(`${filename}-out`, {
-      encoding: "utf8",
-      flag: "r",
-    });
-    const [room, ...rest] = data.split(".");
-    fs.unlinkSync(`${filename}-out`);
+    const [room, ...rest] = identifier.split(".");
     const bookmark = await getBookmark(room);
 
     let refUrl = `/ref/${[bookmark.uid, ...rest].join(".")}`;
@@ -267,19 +218,8 @@ const checkBounds = (wall, shelf, book, page) => {
   });
 
   router.get("/random", async (ctx) => {
-    const filename = `${Date.now()}`;
-
-    const task = runCoreTask(`./src/core/bin/babel -r > ${filename}`);
-
-    if (task.stderr) {
-      ctx.status = 500;
-      ctx.body = `babel core error: ${task.stderr}`;
-      return;
-    }
-
-    const data = fs.readFileSync(filename, { encoding: "utf8", flag: "r" });
-    const [room, ...rest] = data.split(".");
-    fs.unlinkSync(filename);
+    const identifier = babel.getRandomIdentifier();
+    const [room, ...rest] = identifier.split(".");
     const bookmark = await getBookmark(room);
 
     ctx.status = 302;
