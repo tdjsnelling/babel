@@ -102,8 +102,8 @@ const checkBounds = (wall, shelf, book, page) => {
     await ctx.render("limitations");
   });
 
-  router.get("/faq", async (ctx) => {
-    await ctx.render("faq");
+  router.get("/about", async (ctx) => {
+    await ctx.render("about");
   });
 
   router.get("/browse", async (ctx) => {
@@ -147,7 +147,7 @@ const checkBounds = (wall, shelf, book, page) => {
 
     if (task.stderr) {
       ctx.status = 500;
-      ctx.body = task.stderr;
+      ctx.body = `babel core error: ${task.stderr}`;
       return;
     }
 
@@ -244,7 +244,7 @@ const checkBounds = (wall, shelf, book, page) => {
 
     if (task.stderr) {
       ctx.status = 500;
-      ctx.body = task.stderr;
+      ctx.body = `babel core error: ${task.stderr}`;
       return;
     }
 
@@ -273,7 +273,7 @@ const checkBounds = (wall, shelf, book, page) => {
 
     if (task.stderr) {
       ctx.status = 500;
-      ctx.body = task.stderr;
+      ctx.body = `babel core error: ${task.stderr}`;
       return;
     }
 

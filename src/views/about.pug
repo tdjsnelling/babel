@@ -8,13 +8,19 @@ html(lang="en")
             img.Banner(src="/image/study.png")
 
             h2 What is the Library of Babel?
+            p Read the
+                |
+                |
+                a(href="/") home page
+                |
+                | first.
             p The Library of Babel is a fictional library that contains every possible unique book of 1,312,000 characters. Each book has 410 pages of 40 lines of 80 characters each. 410 × 40 × 80 = 1,312,000. As each book consists of a combination of the same 29 characters, the total number of unique books is 29
                 span.super 1,312,000
                 | . For comparison, it is estimated that there are around 10
                 span.super 80
                 |
                 | atoms in the observable universe.
-            p It contains everything that has ever been written, and everything that ever will be written.
+            p It contains every book that has ever been written, and every book that ever will be written.
 
             h2 How does it work?
             p In the most simple terms:
@@ -23,7 +29,7 @@ html(lang="en")
                     span.super 1,312,000
                     | .
                 li This (usually very large) number is run through a mathematical function to produce another unique number of 1,312,000 digits, which we represent in base-29 (29 is the number of characters in our limited alphabet).
-                li Each digit of the base-29 result is mapped to the character at that position in the limited 29 character alphabet (0 → a, 1 → b, ...) to produce the content of that page.
+                li Each digit of the base-29 result is mapped to the character at that position in the limited 29 character alphabet (0 → a, 1 → b, ...) to produce the content of that book.
             p Crucially, the mathematical function is reversible meaning that we can instead give it the contents of a book and determine the numerical index of the book that it appears in.
             p Once a book is generated from it’s index, it is split up and displayed page by page. Each page is given an identifier derived from the numerical index, in the format
                 |
