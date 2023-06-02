@@ -1,3 +1,9 @@
+/*
+  babel.c
+  Tom Snelling 2023
+  A complete Library of Babel in under 1000 LOC
+*/
+
 #include <assert.h>
 #include <gmp.h>
 #include <node_api.h>
@@ -31,6 +37,9 @@ void printHorizontal() {
   putchar('\n');
 }
 
+/*
+  Get a sequential book index from an identifier in the format `1.1.1.1.1`.
+*/
 long getSequentialContentNumberFromIdentifier(mpz_t seqNumber,
                                               char *identifier) {
   char *tokens[5];
@@ -55,7 +64,7 @@ long getSequentialContentNumberFromIdentifier(mpz_t seqNumber,
   mpz_t totalRooms;
   mpz_init(totalRooms);
   mpz_set_ui(totalRooms, ALPHA_LENGTH);
-  mpz_pow_ui(totalRooms, totalRooms, BOOK_LENGTH);  // unique books
+  mpz_pow_ui(totalRooms, totalRooms, BOOK_LENGTH);  // total unique books
   mpz_tdiv_q_ui(totalRooms, totalRooms, BOOKS * SHELVES * WALLS);
 
   if (mpz_cmp(intRoom, totalRooms) > 0) {
@@ -108,6 +117,9 @@ long getSequentialContentNumberFromIdentifier(mpz_t seqNumber,
   return parsedPage;
 }
 
+/*
+  Get an identifier in the format `1.1.1.1.1` from a sequential book index.
+*/
 char *getIdentifierFromSequentialContentNumber(mpz_t seqNumber, int page) {
   mpz_sub_ui(seqNumber, seqNumber, 1);
 
@@ -149,6 +161,10 @@ char *getIdentifierFromSequentialContentNumber(mpz_t seqNumber, int page) {
   return identifier;
 }
 
+/*
+  Given a page identifier, determine the book index of that identifier and then
+  calculate the resulting book contents via modular multiplication.
+*/
 PageData generateContent(char *identifier, mpz_t C, mpz_t N, int prettyFlag) {
   mpz_t seqNumber;
   mpz_init(seqNumber);
@@ -290,6 +306,11 @@ PageData generateContent(char *identifier, mpz_t C, mpz_t N, int prettyFlag) {
   mpz_clear(seqNumber);
 }
 
+/*
+  Given some content as a string, pad that string to BOOK_LENGTH, transform it
+  into a base-29 'hash', and calculate it's book index via modular
+  multiplication.
+*/
 char *lookupContent(char *content, mpz_t I, mpz_t N, int page) {
   char paddedContent[BOOK_LENGTH + 1] = "";
   strncpy(paddedContent, content, sizeof(paddedContent) - 1);
@@ -335,6 +356,9 @@ char *lookupContent(char *content, mpz_t I, mpz_t N, int page) {
   return identifier;
 }
 
+/*
+  Generate and return a random page identifier.
+*/
 char *getRandomIdentifier() {
   gmp_randstate_t randState;
   gmp_randinit_default(randState);
@@ -369,6 +393,9 @@ char *getRandomIdentifier() {
                                                   mpz_get_ui(randomPage));
 }
 
+/*
+  Read from `numbers` file and initialise mpz_t constants.
+*/
 void initialiseNumbers(mpz_t N, mpz_t C, mpz_t I) {
   char N_STR[BOOK_LENGTH + 1] = "";
   char C_STR[BOOK_LENGTH + 1] = "";
@@ -394,9 +421,11 @@ void initialiseNumbers(mpz_t N, mpz_t C, mpz_t I) {
   mpz_set_str(I, I_STR, ALPHA_LENGTH);
 }
 
+/*
+  Default stack size limit may be too small as we are working with very large
+  variables. Increase to avoid problems (Linux only?).
+*/
 void setRLimit() {
-  // we will likely need to increase default stack size to work with very large
-  // variables
   const rlim_t kStackSize = 16L * 1024L * 1024L;  // 16 MB
   struct rlimit rl;
   int result;
@@ -413,6 +442,9 @@ void setRLimit() {
   }
 }
 
+/*
+  Node-API wrapper to generateContent().
+*/
 static napi_value napiGenerateContent(napi_env env, napi_callback_info info) {
   setRLimit();
 
@@ -511,6 +543,9 @@ static napi_value napiGenerateContent(napi_env env, napi_callback_info info) {
   return data;
 }
 
+/*
+  Node-API wrapper to lookupContent().
+*/
 static napi_value napiLookupContent(napi_env env, napi_callback_info info) {
   setRLimit();
 
@@ -530,8 +565,8 @@ static napi_value napiLookupContent(napi_env env, napi_callback_info info) {
   char *input;
   input = (char *)calloc(str_size + 1, sizeof(char));
   str_size = str_size + 1;
-  status = napi_get_value_string_utf8(env, args[0], input, str_size,
-                             &str_size_read);
+  status =
+      napi_get_value_string_utf8(env, args[0], input, str_size, &str_size_read);
   assert(status == napi_ok);
 
   int pageNumber;
@@ -547,6 +582,9 @@ static napi_value napiLookupContent(napi_env env, napi_callback_info info) {
   return identifier;
 }
 
+/*
+  Node-API wrapper to getRandomIdentifier().
+*/
 static napi_value napiGetRandomIdentifier(napi_env env,
                                           napi_callback_info info) {
   setRLimit();
@@ -568,6 +606,9 @@ static napi_value napiGetRandomIdentifier(napi_env env,
 #define DECLARE_NAPI_METHOD(name, func) \
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
+/*
+  Entrypoint when run via Node-API.
+*/
 static napi_value napiInit(napi_env env, napi_value exports) {
   napi_status status;
   napi_property_descriptor descriptors[] = {
@@ -582,6 +623,10 @@ static napi_value napiInit(napi_env env, napi_value exports) {
 
 NAPI_MODULE(NODE_GYP_MODULE_NAME, napiInit)
 
+/*
+  Entrypoint when run from command line. Parse arguments and perform relevant
+  function.
+*/
 int main(int argc, char **argv) {
   setRLimit();
 

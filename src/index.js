@@ -11,6 +11,7 @@ import bindings from "bindings";
 import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants.js";
 import {
   getEmptyBookContent,
+  getEmptyPageBookContent,
   getRandomCharsBookContent,
   getRandomWordsBookContent,
 } from "./search.js";
@@ -164,12 +165,11 @@ const checkBounds = (wall, shelf, book, page) => {
   });
 
   router.get("/search", async (ctx) => {
-    const { content, mode } = ctx.request.query;
+    await ctx.render("search");
+  });
 
-    if (!content || content.replace(/ /g, "") === "") {
-      await ctx.render("search");
-      return;
-    }
+  router.post("/do-search", async (ctx) => {
+    const { content, mode } = ctx.request.body;
 
     const lowerCase = content.toLowerCase();
     const contentNoNewlines = lowerCase.replace(/\r/g, "").replace(/\n/g, "");
@@ -184,8 +184,11 @@ const checkBounds = (wall, shelf, book, page) => {
 
     let book;
     let highlight;
+    let page = 1;
 
     if (!mode || mode === "empty") {
+      ({ book, page } = getEmptyPageBookContent(lowerCase));
+    } else if (mode === "emptybook") {
       book = getEmptyBookContent(lowerCase);
     } else if (mode === "chars") {
       ({ book, highlight } = getRandomCharsBookContent(lowerCase));
@@ -193,7 +196,6 @@ const checkBounds = (wall, shelf, book, page) => {
       ({ book, highlight } = getRandomWordsBookContent(lowerCase));
     }
 
-    let page = 1;
     if (highlight) {
       const { startLine, startCol, endLine, endCol } = highlight;
       page = Math.ceil(parseInt(startLine) / LINES);
@@ -207,14 +209,7 @@ const checkBounds = (wall, shelf, book, page) => {
     const [room, ...rest] = identifier.split(".");
     const bookmark = await getBookmark(room);
 
-    let refUrl = `/ref/${[bookmark.uid, ...rest].join(".")}`;
-
-    if (highlight) {
-      refUrl += `?highlight=${highlight}`;
-    }
-
-    ctx.status = 302;
-    ctx.redirect(refUrl);
+    ctx.body = { ref: [bookmark.uid, ...rest].join("."), highlight };
   });
 
   router.get("/random", async (ctx) => {

@@ -4,7 +4,7 @@ WORKDIR /app
 RUN apt update && apt -y install \
     build-essential \
     m4 \
-    clang \
+    gcc \
     wget
 
 RUN wget --quiet https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz && \

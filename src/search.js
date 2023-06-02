@@ -32,6 +32,40 @@ export const getEmptyBookContent = (content) => {
   return book;
 };
 
+export const getEmptyPageBookContent = (content) => {
+  const randomPage = Math.floor(Math.random() * PAGES);
+  const startChar = randomPage * LINES * CHARS;
+
+  let book = "";
+
+  while (book.length < startChar) {
+    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+  }
+
+  let page = content
+    .split("\n")
+    .map((line) => {
+      let chars = line.split("");
+      chars.forEach((char, i) => {
+        if (!ALPHA.includes(char)) chars[i] = " ";
+      });
+      if (chars.length < CHARS) {
+        chars = chars.concat(Array(CHARS - line.length).fill(" "));
+      }
+      return chars.join("");
+    })
+    .join("");
+
+  while (page.length < LINES * CHARS) page += " ";
+
+  book += page;
+
+  while (book.length < PAGES * LINES * CHARS)
+    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+
+  return { book, page: randomPage + 1 };
+};
+
 export const getRandomCharsBookContent = (content) => {
   const randomStartPosition =
     Math.floor(
