@@ -1,0 +1,96 @@
+doctype html
+html(lang="en")
+    include includes/head.pug
+    body
+        include includes/nav.pug
+
+        div.BodyStyle
+            img.Banner(src="/image/study.png")
+
+            h2 What is the Library of Babel?
+            p Read the
+                |
+                |
+                a(href="/") home page
+                |
+                | first.
+            p The Library of Babel is a fictional library that contains every possible unique book of 1,312,000 characters. Each book has 410 pages of 40 lines of 80 characters each. 410 × 40 × 80 = 1,312,000. As each book consists of a combination of the same 29 characters, the total number of unique books is 29
+                span.super 1,312,000
+                | . For comparison, it is estimated that there are around 10
+                span.super 80
+                |
+                | atoms in the observable universe.
+            p It contains every book that has ever been written, and every book that ever will be written.
+
+            h2 How does it work?
+            p In the most simple terms:
+            ol
+                li Each book is given a numerical index. The first book on the first shelf is book 1, the first book on the second shelf is 33 and so on, until the last book in the entire library — which has the index 29
+                    span.super 1,312,000
+                    | .
+                li This (usually very large) number is run through a mathematical function to produce another unique number of 1,312,000 digits, which we represent in base-29 (29 is the number of characters in our limited alphabet).
+                li Each digit of the base-29 result is mapped to the character at that position in the limited 29 character alphabet (0 → a, 1 → b, ...) to produce the content of that book.
+            p Crucially, the mathematical function is reversible meaning that we can instead give it the contents of a book and determine the numerical index of the book that it appears in.
+            p Once a book is generated from it’s index, it is split up and displayed page by page. Each page is given an identifier derived from the numerical index, in the format
+                |
+                |
+                span.code room.wall.shelf.book.page
+                |
+                | e.g.
+                |
+                span.code 1.2.3.4.5
+                | . This is used in the URL of that page.
+            p For a more detailed explanation of the mathematical functions used and to view the source code, please see the
+                |
+                |
+                a(href="https://github.com/tdjsnelling/babel", target="_blank") GitHub repository
+                | .
+
+            h2 The page URLs seem quite short. How can these possibly map to so many unique books?
+            p Well spotted. On this website, the room identifiers are represented as
+                |
+                |
+                a(href="https://en.wikipedia.org/wiki/Universally_unique_identifier", target="_blank") UUIDs
+                | . The
+                |
+                em actual
+                |
+                | room identifiers get incredibly long, up to roughly a million digits when represented in base-62. This makes them much too long to be used in URLs, so instead a ‘bookmark’ is created and stored for the room in the form of a UUID when it is first visited. This UUID is used in place of the room identifier in the page URL.
+            p However, there are orders of magnitude more possible room identifiers than there are possible UUIDs. In theory, eventually when all UUIDs are used up then they will start to be overwritten as new, undiscovered rooms are accessed for the first time. In reality, this limit will never be reached.
+
+
+            h2 How do I know it’s not fake? Is it just creating pages with my search terms and saving them so I can see them again later?
+            p It is easy to assume that this website just takes whatever text you search for, inserts it into a random page, and saves that page on disk so that you can find it again at a later date. Similarly with pages of gibberish, what’s to say they aren’t just generated randomly when you request them and saved for later?
+            p Building a Library of Babel this way would require unobtainable amounts of storage. A single book’s content takes up 1,312,000 bytes (1.31 MB), with a single byte per ASCII character. 1,312,000 bytes multiplied by 29
+                span.super 1,312,000
+                |
+                | unique books gives us a total size of 1.955×10
+                span.super 1,918,660
+                |
+                | TB — an infeasible amount of data to store, to say the very least.
+            p Thus to build a virtual Library of Babel, we have to use a method that doesn’t require any storage. Books are generated on the fly based on their numerical index, and the same index will continue to generate the same book forever, unless the algorithm is changed.
+
+            h2 Where can I learn more about the Library of Babel?
+            p If you haven’t already read
+                |
+                |
+                a(href="/pdf/Borges-The-Library-of-Babel.pdf", target="_blank") the story
+                |
+                | then start there! The website
+                |
+                a(href="https://libraryofbabel.info", target="_blank") libraryofbabel.info
+                |
+                | also contains lots of supplemental information and theory, as well as another implementation of the library itself.
+
+            h2 What makes this version of the Library different?
+            p As far as I am aware, this is the only implementation of the Library that contains every unique book, rather than just every unique page. This results in a much larger library, and means that you can search for content longer than a single page.
+            p This comes as a result of re-writing the core library logic in C and making use of
+                |
+                |
+                a(href="https://gmplib.org/", target="_blank") GMP
+                | , a powerful multiple precision arithmetic library. Porting the original JS core logic to C allows for much faster and more efficient calculations, making working with the very large numbers required possible.
+
+            h2 Where do the images on this site come from?
+            p They are all generated by Midjourney AI.
+
+        include includes/footer.pug

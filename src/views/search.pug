@@ -5,6 +5,8 @@ html(lang="en")
         include includes/nav.pug
 
         div.BodyStyle(style="margin-bottom: 20px;")
+            img.Librarian(src="/image/librarian-5.png")
+
             p Any text you can come up with will already have been written down, somewhere deep within the library. All that remains is to find it.
             p
                 em “...the detailed history of the future...”
@@ -16,13 +18,20 @@ html(lang="en")
                 em “...the true story of your death...”
             p
                 em “...the translation of every book into every language...”
+            p
+                em “...the interpolations of every book into all books...”
+            p
+                em “...the lost books of Tacitus...”
 
         form.SearchForm
-            textarea(name="content", rows=10, required=true, placeholder="Enter up to 3200 characters from a-z, comma, full-stop, or space. New lines are preserved in empty page mode.")
+            textarea(name="content", rows=10, required=true, placeholder="Enter up to 1,312,000 characters from a-z, comma, full-stop, or space. New lines are preserved in empty page and empty book modes.")
             div.ModeSelection
                 label
                     input(type="radio", name="mode", value="empty", checked=true)
                     | On an empty page
+                label
+                    input(type="radio", name="mode", value="emptybook")
+                    | In an empty book
                 label
                     input(type="radio", name="mode", value="chars")
                     | With random characters
@@ -33,4 +42,4 @@ html(lang="en")
 
         include includes/footer.pug
 
-    script(src="/js/handleInput.js", type="text/javascript")
+    script(src="/js/handleSearchForm.js", type="text/javascript")

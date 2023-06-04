@@ -5,11 +5,11 @@ html(lang="en")
         include includes/nav.pug
 
         div.PageInfo
-            pre room #{info.shortRoom} / wall #{info.wall} / shelf #{info.shelf} / book #{info.book} / page #{info.page}
-            - if (info.room !== info.shortRoom)
+            pre room #{info.roomShort} / wall #{info.wall} / shelf #{info.shelf} / book #{info.book} / page #{info.page}
+            - if (info.room !== info.roomShort)
                 details
                     summary View full page reference
-                    p #{info.identifier}
+                    p #{info.room}.#{info.wall}.#{info.shelf}.#{info.book}.#{info.page}
 
         div.PageContentWrapper
             div.PageContent

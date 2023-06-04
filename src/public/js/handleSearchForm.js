@@ -1,3 +1,28 @@
+const form = document.querySelector("form");
+
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(form);
+
+  const res = await fetch("/do-search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      content: formData.get("content"),
+      mode: formData.get("mode"),
+    }),
+  });
+
+  if (res.ok) {
+    const { ref, highlight } = await res.json();
+    let url = `/ref/${ref}`;
+    if (highlight) url += `?highlight=${highlight}`;
+    location.href = url;
+  }
+};
+
 const ALPHA = "abcdefghijklmnopqrstuvwxyz., ";
 const input = document.querySelector("textarea");
 input.oninput = (e) => {

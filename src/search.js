@@ -1,5 +1,4 @@
-import { ALPHA, CHARS, LINES } from "./constants.js";
-import { reverseLookupPage } from "./babel.js";
+import { ALPHA, CHARS, LINES, PAGES } from "./constants.js";
 import { words } from "popular-english-words";
 
 const getHighlightPos = (start, length) => {
@@ -10,10 +9,39 @@ const getHighlightPos = (start, length) => {
   const endLine = Math.floor(endPos / CHARS);
   const endCol = endPos % CHARS;
 
-  return [startLine, startCol, endLine, endCol].join(":");
+  return { startLine, startCol, endLine, endCol };
 };
 
-export const searchEmptyPage = (content) => {
+export const getEmptyBookContent = (content) => {
+  let book = content
+    .split("\n")
+    .map((line) => {
+      let chars = line.split("");
+      chars.forEach((char, i) => {
+        if (!ALPHA.includes(char)) chars[i] = " ";
+      });
+      if (chars.length < CHARS) {
+        chars = chars.concat(Array(CHARS - line.length).fill(" "));
+      }
+      return chars.join("");
+    })
+    .join("");
+
+  while (book.length < PAGES * LINES * CHARS) book += " ";
+
+  return book;
+};
+
+export const getEmptyPageBookContent = (content) => {
+  const randomPage = Math.floor(Math.random() * PAGES);
+  const startChar = randomPage * LINES * CHARS;
+
+  let book = "";
+
+  while (book.length < startChar) {
+    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+  }
+
   let page = content
     .split("\n")
     .map((line) => {
@@ -30,69 +58,72 @@ export const searchEmptyPage = (content) => {
 
   while (page.length < LINES * CHARS) page += " ";
 
-  const identifier = reverseLookupPage(page);
+  book += page;
 
-  return { identifier };
+  while (book.length < PAGES * LINES * CHARS)
+    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+
+  return { book, page: randomPage + 1 };
 };
 
-export const searchRandomChars = (content) => {
+export const getRandomCharsBookContent = (content) => {
   const randomStartPosition =
     Math.floor(
-      Math.random() * (LINES * CHARS - content.length + 1) + content.length
+      Math.random() * (PAGES * LINES * CHARS - content.length + 1) +
+        content.length
     ) - content.length;
 
   const noLineBreaks = content.replace(/\r/g, "").replace(/\n/g, "");
 
-  let page = "";
+  let book = "";
 
-  while (page.length < randomStartPosition) {
-    page += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+  while (book.length < randomStartPosition) {
+    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
   }
-  page += noLineBreaks;
-  while (page.length < LINES * CHARS) {
-    page += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+  book += noLineBreaks;
+  while (book.length < PAGES * LINES * CHARS) {
+    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
   }
 
-  const identifier = reverseLookupPage(page);
   const highlight = getHighlightPos(randomStartPosition, noLineBreaks.length);
 
-  return { identifier, highlight };
+  return { book, highlight };
 };
 
-export const searchRandomWords = (content) => {
+export const getRandomWordsBookContent = (content) => {
   const popularWords = words.getMostPopular(3000);
 
   const randomStartPosition =
     Math.floor(
-      Math.random() * (LINES * CHARS - content.length + 1) + content.length
+      Math.random() * (PAGES * LINES * CHARS - content.length + 1) +
+        content.length
     ) - content.length;
 
   const noLineBreaks = content.replace(/\r/g, "").replace(/\n/g, "");
 
-  let page = "";
+  let book = "";
 
-  while (page.length < randomStartPosition) {
+  while (book.length < randomStartPosition) {
     const viableWords = popularWords.filter(
-      (w) => w.length <= randomStartPosition - page.length - 1
+      (w) => w.length <= randomStartPosition - book.length - 1
     );
-    page += `${
+    book += `${
       viableWords[Math.floor(Math.random() * viableWords.length)] || ""
     } `;
   }
-  page += `${noLineBreaks} `;
-  while (page.length < LINES * CHARS) {
+  book += `${noLineBreaks} `;
+  while (book.length < PAGES * LINES * CHARS) {
     const viableWords = popularWords.filter(
-      (w) => w.length <= LINES * CHARS - page.length - 1
+      (w) => w.length <= PAGES * LINES * CHARS - book.length - 1
     );
-    page += `${
+    book += `${
       viableWords[Math.floor(Math.random() * viableWords.length)] || ""
     } `;
   }
 
-  while (page.length < LINES * CHARS) page += " ";
+  while (book.length < PAGES * LINES * CHARS) book += " ";
 
-  const identifier = reverseLookupPage(page);
   const highlight = getHighlightPos(randomStartPosition, noLineBreaks.length);
 
-  return { identifier, highlight };
+  return { book, highlight };
 };
