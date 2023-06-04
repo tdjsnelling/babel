@@ -56,14 +56,37 @@ const checkBounds = (wall, shelf, book, page) => {
     throw new Error(`Page must be between 1 and ${PAGES}. Got: ${page}`);
 };
 
+const connectToDatabase = async () => {
+  try {
+    console.log("connecting to database");
+    mongoose.connection.on("open", async () => {
+      console.log("connected to database successfully");
+    });
+    mongoose.connection.on("disconnected", async () => {
+      console.log("lost connection to database");
+      setTimeout(connectToDatabase, 5000);
+    });
+    await mongoose.connect(process.env.MONGO_URL);
+  } catch (e) {
+    console.error(`could not connect to database: ${e.message}`);
+    setTimeout(connectToDatabase, 5000);
+  }
+};
+
 (async () => {
-  await mongoose.connect(process.env.MONGO_URL);
+  await connectToDatabase();
 
   const app = new Koa();
-  const router = new Router();
+  const staticRouter = new Router();
+  const dynamicRouter = new Router();
   const pug = new Pug({
     viewPath: path.resolve(path.resolve(), "src/views"),
     app,
+  });
+
+  app.use(async (ctx, next) => {
+    ctx.set("Cache-Control", "public, max-age=15552000");
+    await next();
   });
 
   app.use(serve("src/public"));
@@ -87,30 +110,28 @@ const checkBounds = (wall, shelf, book, page) => {
     ctx.set("X-Response-Time", `${ms}ms`);
   });
 
-  router.get("/", async (ctx) => {
+  staticRouter.use(async (ctx, next) => {
+    ctx.set("Cache-Control", "public, max-age=86400");
+    await next();
+  });
+
+  staticRouter.get("/", async (ctx) => {
     await ctx.render("index");
   });
 
-  router.get("/limitations", async (ctx) => {
-    await ctx.render("limitations");
-  });
-
-  router.get("/about", async (ctx) => {
+  staticRouter.get("/about", async (ctx) => {
     await ctx.render("about");
   });
 
-  router.get("/browse", async (ctx) => {
+  staticRouter.get("/browse", async (ctx) => {
     await ctx.render("browse");
   });
 
-  router.post("/get-uid", async (ctx) => {
-    const { identifier } = ctx.request.body;
-    const [roomOrUid, ...rest] = identifier.split(".");
-    const bookmark = await getBookmark(roomOrUid);
-    ctx.body = [bookmark.uid, ...rest].join(".");
+  staticRouter.get("/search", async (ctx) => {
+    await ctx.render("search");
   });
 
-  router.get("/ref/:identifier", async (ctx) => {
+  staticRouter.get("/ref/:identifier", async (ctx) => {
     const { identifier } = ctx.params;
     const [roomOrUid, ...rest] = identifier.split(".");
 
@@ -164,11 +185,19 @@ const checkBounds = (wall, shelf, book, page) => {
     });
   });
 
-  router.get("/search", async (ctx) => {
-    await ctx.render("search");
+  dynamicRouter.use(async (ctx, next) => {
+    ctx.set("Cache-Control", "no-cache, no-store");
+    await next();
   });
 
-  router.post("/do-search", async (ctx) => {
+  dynamicRouter.post("/get-uid", async (ctx) => {
+    const { identifier } = ctx.request.body;
+    const [roomOrUid, ...rest] = identifier.split(".");
+    const bookmark = await getBookmark(roomOrUid);
+    ctx.body = [bookmark.uid, ...rest].join(".");
+  });
+
+  dynamicRouter.post("/do-search", async (ctx) => {
     const { content, mode } = ctx.request.body;
 
     const lowerCase = content.toLowerCase();
@@ -212,7 +241,7 @@ const checkBounds = (wall, shelf, book, page) => {
     ctx.body = { ref: [bookmark.uid, ...rest].join("."), highlight };
   });
 
-  router.get("/random", async (ctx) => {
+  dynamicRouter.get("/random", async (ctx) => {
     const identifier = babel.getRandomIdentifier();
     const [room, ...rest] = identifier.split(".");
     const bookmark = await getBookmark(room);
@@ -222,7 +251,8 @@ const checkBounds = (wall, shelf, book, page) => {
   });
 
   const port = process.env.PORT || 3000;
-  app.use(router.routes());
+  app.use(staticRouter.routes());
+  app.use(dynamicRouter.routes());
   app.listen(port);
   console.log(`listening on http://localhost:${port}`);
 })();
