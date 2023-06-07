@@ -9,7 +9,7 @@ html(lang="en")
                 pre room #{info.roomShort} / wall #{info.wall} / shelf #{info.shelf} / book #{info.book} / page #{info.page}
                 - if (info.room !== info.roomShort)
                     details
-                        summary View full page reference
+                        summary View full page reference (can be very long when expanded)
                         p #{info.room}.#{info.wall}.#{info.shelf}.#{info.book}.#{info.page}
 
             div.PageContentWrapper
