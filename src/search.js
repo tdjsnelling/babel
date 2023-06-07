@@ -42,7 +42,9 @@ export const getEmptyPageBookContent = (content) => {
     book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
   }
 
-  let page = content
+  const trimmedContent = content.substring(0, LINES * CHARS);
+
+  let page = trimmedContent
     .split("\n")
     .map((line) => {
       let chars = line.split("");
