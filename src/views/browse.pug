@@ -4,46 +4,47 @@ html(lang="en")
     body
         include includes/nav.pug
 
-        img.Banner(src="/image/shelves.png", alt="A pencil drawing of a man in a hooded robe standing next to large shelves of books")
+        main
+            img.Banner(src="/image/shelves.png", alt="A pencil drawing of a man in a hooded robe standing next to large shelves of books")
 
-        form.BrowseForm
-            label
-                p Room
-                textarea(name="room", rows=5, required=true, placeholder="Enter an alphanumeric room identifier up to 1,070,449* characters long.")
-
-            div.Numbers
+            form.BrowseForm
                 label
-                    p Wall
-                        |
-                        |
-                        span 1-4
-                    input(name="wall", type="number", min=1, max=4, value=1, required=true)
+                    p Room
+                    textarea(name="room", rows=5, required=true, placeholder="Enter an alphanumeric room identifier up to 1,070,449* characters long.")
 
-                label
-                    p Shelf
-                        |
-                        |
-                        span 1-5
-                    input(name="shelf", type="number", min=1, max=5, value=1, required=true)
+                div.Numbers
+                    label
+                        p Wall
+                            |
+                            |
+                            span 1-4
+                        input(name="wall", type="number", min=1, max=4, value=1, required=true)
 
-                label
-                    p Book
-                        |
-                        |
-                        span 1-32
-                    input(name="book", type="number", min=1, max=32, value=1, required=true)
+                    label
+                        p Shelf
+                            |
+                            |
+                            span 1-5
+                        input(name="shelf", type="number", min=1, max=5, value=1, required=true)
 
-                label
-                    p Page
-                        |
-                        |
-                        span 1-410
-                    input(name="page", type="number", min=1, max=410, value=1, required=true)
+                    label
+                        p Book
+                            |
+                            |
+                            span 1-32
+                        input(name="book", type="number", min=1, max=32, value=1, required=true)
 
-            button Go
+                    label
+                        p Page
+                            |
+                            |
+                            span 1-410
+                        input(name="page", type="number", min=1, max=410, value=1, required=true)
 
-        div.InfoBox
-            em * 1,070,449 is the length of the identifier of the very last room in the library.
+                button Go
+
+            div.InfoBox
+                em * 1,070,449 is the length of the identifier of the very last room in the library.
 
         include includes/footer.pug
 

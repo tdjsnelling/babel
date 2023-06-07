@@ -144,6 +144,10 @@ footer a {
   line-height: 1.2;
 }
 
+.PageContent .Lines span {
+  display: block;
+}
+
 .PageContent pre {
   font-family: "Source Code Pro", monospace;
   font-size: 14px;
@@ -276,6 +280,10 @@ footer a {
   margin-bottom: 30px;
   border-radius: 8px;
   display: block;
+}
+
+.nobreak {
+  white-space: nowrap;
 }
 
 .super {

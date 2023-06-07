@@ -4,43 +4,41 @@ html(lang="en")
     body
         include includes/nav.pug
 
-        div.PageInfo
-            pre room #{info.roomShort} / wall #{info.wall} / shelf #{info.shelf} / book #{info.book} / page #{info.page}
-            - if (info.room !== info.roomShort)
-                details
-                    summary View full page reference
-                    p #{info.room}.#{info.wall}.#{info.shelf}.#{info.book}.#{info.page}
+        main
+            div.PageInfo
+                pre room #{info.roomShort} / wall #{info.wall} / shelf #{info.shelf} / book #{info.book} / page #{info.page}
+                - if (info.room !== info.roomShort)
+                    details
+                        summary View full page reference
+                        p #{info.room}.#{info.wall}.#{info.shelf}.#{info.book}.#{info.page}
 
-        div.PageContentWrapper
-            div.PageContent
-                div.Lines
-                    each line, index in lines
-                        - const i = index + 1
-                        span
-                            |
-                            | #{i < 10 ? `0${i}` : i}
-                pre
-                    | #{lines.join('\n')}
+            div.PageContentWrapper
+                div.PageContent
+                    div.Lines
+                        each line, index in lines
+                            - const i = index + 1
+                            span #{i < 10 ? `0${i}` : i}
+                    pre #{lines.join('\n')}
 
-        div.PageNavigation
-            - if (prevPage !== null)
-                a(href=`/ref/${prevPage}`) &larr; Previous
-            - else
-                div
+            div.PageNavigation
+                - if (prevPage !== null)
+                    a(href=`/ref/${prevPage}`) &larr; Previous
+                - else
+                    div
 
-            div.PageSelector
-                p Page
-                - let p = 0
-                select
-                    while p < 410
-                        - const selected = parseInt(p) + 1 === parseInt(info.page)
-                        option(value=(p + 1), selected=selected)= p + 1
-                        - p++
+                div.PageSelector
+                    p Page
+                    - let p = 0
+                    select
+                        while p < 410
+                            - const selected = parseInt(p) + 1 === parseInt(info.page)
+                            option(value=(p + 1), selected=selected)= p + 1
+                            - p++
 
-            - if (nextPage !== null)
-                a(href=`/ref/${nextPage}`) Next &rarr;
-            - else
-                div
+                - if (nextPage !== null)
+                    a(href=`/ref/${nextPage}`) Next &rarr;
+                - else
+                    div
 
         include includes/footer.pug
 
