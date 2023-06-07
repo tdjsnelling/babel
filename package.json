@@ -10,7 +10,9 @@
   "gypfile": true,
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "docker:build": "docker build -t babel:latest .",
+    "docker:run": "docker run -it -p 3000:3000 --env-file=.env babel:latest"
   },
   "devDependencies": {
     "eslint": "^8.10.0",

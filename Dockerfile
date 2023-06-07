@@ -20,10 +20,12 @@ COPY package.json ./package.json
 COPY yarn.lock ./yarn.lock
 COPY binding.gyp ./binding.gyp
 
-COPY src ./src
+COPY src/core ./src/core
 COPY src/core/numbers ./numbers
 
 RUN yarn install --production
+
+COPY src ./src
 
 EXPOSE 3000
 

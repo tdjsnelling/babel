@@ -11,5 +11,3 @@ const int CHARS = 80;
 #define BOOK_LENGTH 1312000
 
 const char *BASE29_ALPHA = "0123456789abcdefghijklmnopqrs";
-const char *BASE62_ALPHA =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

@@ -27,7 +27,7 @@ const getBookmark = async (roomOrUid) => {
     return Bookmark.findOne({ uid: roomOrUid });
   } else {
     let room = roomOrUid;
-    if (room.startsWith("0")) {
+    if (room.length > 1 && room.startsWith("0")) {
       room = room.replace(/^0+/, "");
     }
     const bookmark = await Bookmark.findOne({ room });
@@ -59,10 +59,10 @@ const checkBounds = (wall, shelf, book, page) => {
 const connectToDatabase = async () => {
   try {
     console.log("connecting to database");
-    mongoose.connection.on("open", async () => {
+    mongoose.connection.once("open", async () => {
       console.log("connected to database successfully");
     });
-    mongoose.connection.on("disconnected", async () => {
+    mongoose.connection.once("disconnected", async () => {
       console.log("lost connection to database");
       setTimeout(connectToDatabase, 5000);
     });
@@ -150,39 +150,44 @@ const connectToDatabase = async () => {
       return;
     }
 
-    const {
-      content,
-      roomShort,
-      room,
-      wall,
-      shelf,
-      book,
-      page,
-      prevIdentifier,
-      nextIdentifier,
-    } = babel.getPage([bookmark.room, ...rest].join("."));
-
-    const [prevRoom, ...prevRest] = prevIdentifier.split(".");
-    const prevBookmark = await getBookmark(prevRoom);
-
-    const [nextRoom, ...nextRest] = nextIdentifier.split(".");
-    const nextBookmark = await getBookmark(nextRoom);
-
-    await ctx.render("page", {
-      info: {
-        identifier,
-        uid: bookmark.uid,
+    try {
+      const {
+        content,
         roomShort,
         room,
         wall,
         shelf,
         book,
         page,
-      },
-      lines: content.match(new RegExp(`.{${CHARS}}`, "g")),
-      prevPage: [prevBookmark.uid, ...prevRest].join("."),
-      nextPage: [nextBookmark.uid, ...nextRest].join("."),
-    });
+        prevIdentifier,
+        nextIdentifier,
+      } = babel.getPage([bookmark.room, ...rest].join("."));
+
+      const [prevRoom, ...prevRest] = prevIdentifier.split(".");
+      const prevBookmark = await getBookmark(prevRoom);
+
+      const [nextRoom, ...nextRest] = nextIdentifier.split(".");
+      const nextBookmark = await getBookmark(nextRoom);
+
+      await ctx.render("page", {
+        info: {
+          identifier,
+          uid: bookmark.uid,
+          roomShort,
+          room,
+          wall,
+          shelf,
+          book,
+          page,
+        },
+        lines: content.match(new RegExp(`.{${CHARS}}`, "g")),
+        prevPage: [prevBookmark.uid, ...prevRest].join("."),
+        nextPage: [nextBookmark.uid, ...nextRest].join("."),
+      });
+    } catch (e) {
+      ctx.status = 500;
+      ctx.body = e.message;
+    }
   });
 
   dynamicRouter.use(async (ctx, next) => {
@@ -233,21 +238,31 @@ const connectToDatabase = async () => {
       highlight = [newStartLine, startCol, newEndLine, endCol].join(":");
     }
 
-    const identifier = babel.searchContent(book, page);
+    try {
+      const identifier = babel.searchContent(book, page);
 
-    const [room, ...rest] = identifier.split(".");
-    const bookmark = await getBookmark(room);
+      const [room, ...rest] = identifier.split(".");
+      const bookmark = await getBookmark(room);
 
-    ctx.body = { ref: [bookmark.uid, ...rest].join("."), highlight };
+      ctx.body = { ref: [bookmark.uid, ...rest].join("."), highlight };
+    } catch (e) {
+      ctx.status = 500;
+      ctx.body = e.message;
+    }
   });
 
   dynamicRouter.get("/random", async (ctx) => {
-    const identifier = babel.getRandomIdentifier();
-    const [room, ...rest] = identifier.split(".");
-    const bookmark = await getBookmark(room);
+    try {
+      const identifier = babel.getRandomIdentifier();
+      const [room, ...rest] = identifier.split(".");
+      const bookmark = await getBookmark(room);
 
-    ctx.status = 302;
-    ctx.redirect(`/ref/${[bookmark.uid, ...rest].join(".")}`);
+      ctx.status = 302;
+      ctx.redirect(`/ref/${[bookmark.uid, ...rest].join(".")}`);
+    } catch (e) {
+      ctx.status = 500;
+      ctx.body = e.message;
+    }
   });
 
   const port = process.env.PORT || 3000;

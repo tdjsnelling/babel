@@ -1,7 +1,7 @@
 /*
   babel.c
   Tom Snelling 2023
-  A complete Library of Babel in under 1000 LOC
+  A complete Library of Babel in under 700 LOC
 */
 
 #include <assert.h>
@@ -28,20 +28,11 @@ typedef struct {
   char *nextIdentifier;
 } PageData;
 
-void printHorizontal() {
-  printf("\x1b[36m");
-  for (int i = 0; i < CHARS + 4; i++) {
-    putchar('=');
-  }
-  printf("\x1b[0m");
-  putchar('\n');
-}
-
 /*
   Get a sequential book index from an identifier in the format `1.1.1.1.1`.
 */
-long getSequentialContentNumberFromIdentifier(mpz_t seqNumber,
-                                              char *identifier) {
+long getSequentialContentNumberFromIdentifier(mpz_t seqNumber, char *identifier,
+                                              napi_env env) {
   char *tokens[5];
   char *copy = strdup(identifier);
   char *token = strtok(copy, ".");
@@ -57,8 +48,7 @@ long getSequentialContentNumberFromIdentifier(mpz_t seqNumber,
   mpz_set_str(intRoom, tokens[0], 62);
 
   if (mpz_cmp_ui(intRoom, 1) < 0) {
-    printf("error: room cannot be smaller than 1\n");
-    abort();
+    napi_throw_error(env, NULL, "room cannot be smaller than 1");
   }
 
   mpz_t totalRooms;
@@ -68,35 +58,28 @@ long getSequentialContentNumberFromIdentifier(mpz_t seqNumber,
   mpz_tdiv_q_ui(totalRooms, totalRooms, BOOKS * SHELVES * WALLS);
 
   if (mpz_cmp(intRoom, totalRooms) > 0) {
-    char largestRoom[BOOK_LENGTH] = "";
-    mpz_get_str(largestRoom, 62, totalRooms);
-    printf("error: room cannot be larger than %s\n", largestRoom);
-    abort();
+    napi_throw_error(env, NULL, "room is too large");
   }
 
   char *remaining;
   long parsedPage = strtol(tokens[4], &remaining, 10);
   if (parsedPage < 1 || parsedPage > PAGES) {
-    printf("error: page must be between 1 and %d\n", PAGES);
-    abort();
+    napi_throw_error(env, NULL, "page must be between 1 and 410");
   }
 
   long parsedBook = strtol(tokens[3], &remaining, 10);
   if (parsedBook < 1 || parsedBook > BOOKS) {
-    printf("error: book must be between 1 and %d\n", BOOKS);
-    abort();
+    napi_throw_error(env, NULL, "book must be between 1 and 32");
   }
 
   long parsedShelf = strtol(tokens[2], &remaining, 10);
   if (parsedShelf < 1 || parsedShelf > SHELVES) {
-    printf("error: shelf must be between 1 and %d\n", SHELVES);
-    abort();
+    napi_throw_error(env, NULL, "shelf must be between 1 and 5");
   }
 
   long parsedWall = strtol(tokens[1], &remaining, 10);
   if (parsedWall < 1 || parsedWall > WALLS) {
-    printf("error: wall must be between 1 and %d\n", SHELVES);
-    abort();
+    napi_throw_error(env, NULL, "wall must be between 1 and 4");
   }
 
   long pBooks = parsedBook;
@@ -165,10 +148,11 @@ char *getIdentifierFromSequentialContentNumber(mpz_t seqNumber, int page) {
   Given a page identifier, determine the book index of that identifier and then
   calculate the resulting book contents via modular multiplication.
 */
-PageData generateContent(char *identifier, mpz_t C, mpz_t N, int prettyFlag) {
+PageData generateContent(char *identifier, mpz_t C, mpz_t N, napi_env env) {
   mpz_t seqNumber;
   mpz_init(seqNumber);
-  long page = getSequentialContentNumberFromIdentifier(seqNumber, identifier);
+  long page =
+      getSequentialContentNumberFromIdentifier(seqNumber, identifier, env);
 
   mpz_t result;
   mpz_init(result);
@@ -214,96 +198,80 @@ PageData generateContent(char *identifier, mpz_t C, mpz_t N, int prettyFlag) {
     }
   }
 
-  if (prettyFlag == 1) {
-    printf("%s\n", identifier);
-    printHorizontal();
+  char *tokens[5];
+  char *copy = strdup(identifier);
+  char *token = strtok(copy, ".");
 
-    for (i = 0; i < PAGE_LENGTH; i += CHARS) {
-      printf("\x1b[36m%02d|\x1b[0m", (i / CHARS) + 1);
-      for (int j = 0; j < CHARS; j++) {
-        putchar(content[i + j]);
-      }
-      printf("\x1b[36m|\x1b[0m\n");
-    }
-
-    printHorizontal();
-  } else {
-    char *tokens[5];
-    char *copy = strdup(identifier);
-    char *token = strtok(copy, ".");
-
-    int count = 0;
-    while (token != NULL && count < 5) {
-      tokens[count++] = token;
-      token = strtok(NULL, ".");
-    }
-
-    char *room = tokens[0];
-    char roomShort[20] = "";
-
-    if (strlen(room) > 16) {
-      char firstEight[9] = "";
-      char lastEight[9] = "";
-      strncpy(firstEight, room, 8);
-      strncpy(lastEight, &room[strlen(room) - 8], 8);
-      firstEight[8] = '\0';
-      lastEight[8] = '\0';
-      sprintf(roomShort, "%s...%s", firstEight, lastEight);
-    } else {
-      sprintf(roomShort, "%s", room);
-    }
-
-    mpz_t nextSeqNumber;
-    mpz_init(nextSeqNumber);
-    mpz_set(nextSeqNumber, seqNumber);
-    int nextPage = page;
-
-    if (nextPage == PAGES) {
-      mpz_add_ui(nextSeqNumber, nextSeqNumber, 1);
-      nextPage = 1;
-    } else {
-      nextPage++;
-    }
-
-    char nextIdentifier[BOOK_LENGTH] = "";
-    sprintf(nextIdentifier, "%s",
-            getIdentifierFromSequentialContentNumber(nextSeqNumber, nextPage));
-
-    mpz_clear(nextSeqNumber);
-
-    mpz_t prevSeqNumber;
-    mpz_init(prevSeqNumber);
-    mpz_set(prevSeqNumber, seqNumber);
-    int prevPage = page;
-
-    if (prevPage == 1) {
-      mpz_sub_ui(prevSeqNumber, prevSeqNumber, 1);
-      prevPage = 410;
-    } else {
-      prevPage--;
-    }
-
-    char prevIdentifier[BOOK_LENGTH] = "";
-    sprintf(prevIdentifier, "%s",
-            getIdentifierFromSequentialContentNumber(prevSeqNumber, prevPage));
-
-    mpz_clear(prevSeqNumber);
-
-    PageData data;
-    data.content = content;
-    data.roomShort = roomShort;
-    data.room = room;
-    data.wall = tokens[1];
-    data.shelf = tokens[2];
-    data.book = tokens[3];
-    data.page = tokens[4];
-    data.prevIdentifier = prevIdentifier;
-    data.nextIdentifier = nextIdentifier;
-
-    return data;
+  int count = 0;
+  while (token != NULL && count < 5) {
+    tokens[count++] = token;
+    token = strtok(NULL, ".");
   }
 
+  char *room = tokens[0];
+  char roomShort[20] = "";
+
+  if (strlen(room) > 16) {
+    char firstEight[9] = "";
+    char lastEight[9] = "";
+    strncpy(firstEight, room, 8);
+    strncpy(lastEight, &room[strlen(room) - 8], 8);
+    firstEight[8] = '\0';
+    lastEight[8] = '\0';
+    sprintf(roomShort, "%s...%s", firstEight, lastEight);
+  } else {
+    sprintf(roomShort, "%s", room);
+  }
+
+  mpz_t nextSeqNumber;
+  mpz_init(nextSeqNumber);
+  mpz_set(nextSeqNumber, seqNumber);
+  int nextPage = page;
+
+  if (nextPage == PAGES) {
+    mpz_add_ui(nextSeqNumber, nextSeqNumber, 1);
+    nextPage = 1;
+  } else {
+    nextPage++;
+  }
+
+  char nextIdentifier[BOOK_LENGTH] = "";
+  sprintf(nextIdentifier, "%s",
+          getIdentifierFromSequentialContentNumber(nextSeqNumber, nextPage));
+
+  mpz_clear(nextSeqNumber);
+
+  mpz_t prevSeqNumber;
+  mpz_init(prevSeqNumber);
+  mpz_set(prevSeqNumber, seqNumber);
+  int prevPage = page;
+
+  if (prevPage == 1) {
+    mpz_sub_ui(prevSeqNumber, prevSeqNumber, 1);
+    prevPage = 410;
+  } else {
+    prevPage--;
+  }
+
+  char prevIdentifier[BOOK_LENGTH] = "";
+  sprintf(prevIdentifier, "%s",
+          getIdentifierFromSequentialContentNumber(prevSeqNumber, prevPage));
+
+  mpz_clear(prevSeqNumber);
   mpz_clear(seqNumber);
+
+  PageData data;
+  data.content = content;
+  data.roomShort = roomShort;
+  data.room = room;
+  data.wall = tokens[1];
+  data.shelf = tokens[2];
+  data.book = tokens[3];
+  data.page = tokens[4];
+  data.prevIdentifier = prevIdentifier;
+  data.nextIdentifier = nextIdentifier;
+
+  return data;
 }
 
 /*
@@ -311,7 +279,7 @@ PageData generateContent(char *identifier, mpz_t C, mpz_t N, int prettyFlag) {
   into a base-29 'hash', and calculate it's book index via modular
   multiplication.
 */
-char *lookupContent(char *content, mpz_t I, mpz_t N, int page) {
+char *lookupContent(char *content, mpz_t I, mpz_t N, int page, napi_env env) {
   char paddedContent[BOOK_LENGTH + 1] = "";
   strncpy(paddedContent, content, sizeof(paddedContent) - 1);
   paddedContent[sizeof(paddedContent) - 1] = '\0';
@@ -331,10 +299,10 @@ char *lookupContent(char *content, mpz_t I, mpz_t N, int page) {
     c = rawmemchr(ALPHA, currentChar);
     int charIndex = (int)(c - ALPHA);
     if (charIndex < 0 || charIndex >= ALPHA_LENGTH) {
-      printf(
+      napi_throw_error(
+          env, NULL,
           "content can only consist of letters a-z, space, comma and "
           "full-stop\n");
-      abort();
     }
     hash[i] = BASE29_ALPHA[charIndex];
   }
@@ -451,12 +419,9 @@ static napi_value napiGenerateContent(napi_env env, napi_callback_info info) {
   mpz_t N, C, I;
   initialiseNumbers(N, C, I);
 
-  napi_status status;
-
   size_t argc = 1;
   napi_value args[1];
-  status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
-  assert(status == napi_ok);
+  napi_get_cb_info(env, info, &argc, args, NULL, NULL);
 
   size_t str_size;
   size_t str_size_read;
@@ -466,79 +431,52 @@ static napi_value napiGenerateContent(napi_env env, napi_callback_info info) {
   str_size = str_size + 1;
   napi_get_value_string_utf8(env, args[0], identifier, str_size,
                              &str_size_read);
-  assert(status == napi_ok);
 
-  PageData pageData = generateContent(identifier, C, N, 0);
+  PageData pageData = generateContent(identifier, C, N, env);
 
   napi_value data;
 
-  status = napi_create_object(env, &data);
-  assert(status == napi_ok);
+  napi_create_object(env, &data);
 
   napi_value contentValue;
-  status = napi_create_string_utf8(env, pageData.content, NAPI_AUTO_LENGTH,
-                                   &contentValue);
-  assert(status == napi_ok);
-  status = napi_set_named_property(env, data, "content", contentValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.content, NAPI_AUTO_LENGTH,
+                          &contentValue);
+  napi_set_named_property(env, data, "content", contentValue);
 
   napi_value roomShortValue;
-  status = napi_create_string_utf8(env, pageData.roomShort, NAPI_AUTO_LENGTH,
-                                   &roomShortValue);
-  assert(status == napi_ok);
-  status = napi_set_named_property(env, data, "roomShort", roomShortValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.roomShort, NAPI_AUTO_LENGTH,
+                          &roomShortValue);
+  napi_set_named_property(env, data, "roomShort", roomShortValue);
 
   napi_value roomValue;
-  status =
-      napi_create_string_utf8(env, pageData.room, NAPI_AUTO_LENGTH, &roomValue);
-  assert(status == napi_ok);
-  status = napi_set_named_property(env, data, "room", roomValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.room, NAPI_AUTO_LENGTH, &roomValue);
+  napi_set_named_property(env, data, "room", roomValue);
 
   napi_value wallValue;
-  status =
-      napi_create_string_utf8(env, pageData.wall, NAPI_AUTO_LENGTH, &wallValue);
-  assert(status == napi_ok);
-  status = napi_set_named_property(env, data, "wall", wallValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.wall, NAPI_AUTO_LENGTH, &wallValue);
+  napi_set_named_property(env, data, "wall", wallValue);
 
   napi_value shelfValue;
-  status = napi_create_string_utf8(env, pageData.shelf, NAPI_AUTO_LENGTH,
-                                   &shelfValue);
-  assert(status == napi_ok);
-  status = napi_set_named_property(env, data, "shelf", shelfValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.shelf, NAPI_AUTO_LENGTH, &shelfValue);
+  napi_set_named_property(env, data, "shelf", shelfValue);
 
   napi_value bookValue;
-  status =
-      napi_create_string_utf8(env, pageData.book, NAPI_AUTO_LENGTH, &bookValue);
-  assert(status == napi_ok);
-  status = napi_set_named_property(env, data, "book", bookValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.book, NAPI_AUTO_LENGTH, &bookValue);
+  napi_set_named_property(env, data, "book", bookValue);
 
   napi_value pageValue;
-  status =
-      napi_create_string_utf8(env, pageData.page, NAPI_AUTO_LENGTH, &pageValue);
-  assert(status == napi_ok);
-  status = napi_set_named_property(env, data, "page", pageValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.page, NAPI_AUTO_LENGTH, &pageValue);
+  napi_set_named_property(env, data, "page", pageValue);
 
   napi_value prevIdentifierValue;
-  status = napi_create_string_utf8(env, pageData.prevIdentifier,
-                                   NAPI_AUTO_LENGTH, &prevIdentifierValue);
-  assert(status == napi_ok);
-  status =
-      napi_set_named_property(env, data, "prevIdentifier", prevIdentifierValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.prevIdentifier, NAPI_AUTO_LENGTH,
+                          &prevIdentifierValue);
+  napi_set_named_property(env, data, "prevIdentifier", prevIdentifierValue);
 
   napi_value nextIdentifierValue;
-  status = napi_create_string_utf8(env, pageData.nextIdentifier,
-                                   NAPI_AUTO_LENGTH, &nextIdentifierValue);
-  assert(status == napi_ok);
-  status =
-      napi_set_named_property(env, data, "nextIdentifier", nextIdentifierValue);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, pageData.nextIdentifier, NAPI_AUTO_LENGTH,
+                          &nextIdentifierValue);
+  napi_set_named_property(env, data, "nextIdentifier", nextIdentifierValue);
 
   return data;
 }
@@ -552,32 +490,25 @@ static napi_value napiLookupContent(napi_env env, napi_callback_info info) {
   mpz_t N, C, I;
   initialiseNumbers(N, C, I);
 
-  napi_status status;
-
   size_t argc = 2;
   napi_value args[2];
-  status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
-  assert(status == napi_ok);
+  napi_get_cb_info(env, info, &argc, args, NULL, NULL);
 
   size_t str_size;
   size_t str_size_read;
-  status = napi_get_value_string_utf8(env, args[0], NULL, 0, &str_size);
+  napi_get_value_string_utf8(env, args[0], NULL, 0, &str_size);
   char *input;
   input = (char *)calloc(str_size + 1, sizeof(char));
   str_size = str_size + 1;
-  status =
-      napi_get_value_string_utf8(env, args[0], input, str_size, &str_size_read);
-  assert(status == napi_ok);
+  napi_get_value_string_utf8(env, args[0], input, str_size, &str_size_read);
 
   int pageNumber;
-  status = napi_get_value_int32(env, args[1], &pageNumber);
+  napi_get_value_int32(env, args[1], &pageNumber);
 
-  char *foundIdentifier = lookupContent(input, I, N, pageNumber);
+  char *foundIdentifier = lookupContent(input, I, N, pageNumber, env);
 
   napi_value identifier;
-  status = napi_create_string_utf8(env, foundIdentifier, NAPI_AUTO_LENGTH,
-                                   &identifier);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, foundIdentifier, NAPI_AUTO_LENGTH, &identifier);
 
   return identifier;
 }
@@ -594,11 +525,8 @@ static napi_value napiGetRandomIdentifier(napi_env env,
 
   char *randomIdentifier = getRandomIdentifier();
 
-  napi_status status;
   napi_value identifier;
-  status = napi_create_string_utf8(env, randomIdentifier, NAPI_AUTO_LENGTH,
-                                   &identifier);
-  assert(status == napi_ok);
+  napi_create_string_utf8(env, randomIdentifier, NAPI_AUTO_LENGTH, &identifier);
 
   return identifier;
 }
@@ -607,7 +535,7 @@ static napi_value napiGetRandomIdentifier(napi_env env,
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
 /*
-  Entrypoint when run via Node-API.
+  Entrypoint for Node-API.
 */
 static napi_value napiInit(napi_env env, napi_value exports) {
   napi_status status;
@@ -621,82 +549,4 @@ static napi_value napiInit(napi_env env, napi_value exports) {
   return exports;
 }
 
-NAPI_MODULE(NODE_GYP_MODULE_NAME, napiInit)
-
-/*
-  Entrypoint when run from command line. Parse arguments and perform relevant
-  function.
-*/
-int main(int argc, char **argv) {
-  setRLimit();
-
-  mpz_t N, C, I;
-  initialiseNumbers(N, C, I);
-
-  int c;
-  int prettyFlag = 0;
-  int pageNumber = 1;
-  char *input;
-
-  while ((c = getopt(argc, argv, "f:pn:icr")) != -1) {
-    switch (c) {
-      case 'f': {
-        FILE *inputfptr = fopen(optarg, "rb");
-        if (inputfptr != NULL) {
-          fseek(inputfptr, 0, SEEK_END);
-          long fsize = ftell(inputfptr);
-          fseek(inputfptr, 0, SEEK_SET);
-          input = malloc(fsize + 1);
-          fread(input, fsize, 1, inputfptr);
-          fclose(inputfptr);
-          input[fsize] = 0;
-        } else {
-          printf("could not open input file.\n");
-          abort();
-        }
-        break;
-      }
-      case 'p': {
-        prettyFlag = 1;
-        break;
-      }
-      case 'n': {
-        pageNumber = atoi(optarg);
-        break;
-      }
-      case 'i': {
-        generateContent(input, C, N, prettyFlag);
-        break;
-      }
-      case 'c': {
-        char *identifier = lookupContent(input, I, N, pageNumber);
-        if (prettyFlag == 1) {
-          generateContent(identifier, C, N, prettyFlag);
-          printf("%s", input);
-        } else {
-          printf("%s", identifier);
-        }
-        break;
-      }
-      case 'r': {
-        char *randomIdentifier = getRandomIdentifier();
-        if (prettyFlag == 1) {
-          generateContent(randomIdentifier, C, N, prettyFlag);
-        } else {
-          printf("%s", randomIdentifier);
-        }
-        break;
-      }
-      case '?': {
-        printf(
-            "\nusage:\n  -i 1.1.1.1.1     : look up a page by id\n  -c 'hello "
-            "world' "
-            ": look up a page by some content\n  -r : generate a random page "
-            "identifier");
-        break;
-      }
-    }
-  }
-
-  return 0;
-}
+NAPI_MODULE(NODE_GYP_MODULE_NAME, napiInit);
