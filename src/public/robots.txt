@@ -1,4 +1,3 @@
-# Sorry robots, the library does not belong to you.
-
 User-agent: *
 Disallow: /ref/
+Disallow: /fullref/

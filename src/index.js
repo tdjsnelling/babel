@@ -190,6 +190,37 @@ const connectToDatabase = async () => {
     }
   });
 
+  staticRouter.get("/fullref/:identifier", async (ctx) => {
+    const { identifier } = ctx.params;
+    const [roomOrUid, ...rest] = identifier.split(".");
+
+    try {
+      checkBounds(...rest);
+    } catch (e) {
+      ctx.status = 400;
+      ctx.body = e.message;
+      return;
+    }
+
+    const bookmark = await getBookmark(roomOrUid);
+    if (bookmark.uid !== roomOrUid) {
+      ctx.status = 302;
+      ctx.redirect(`/fullref/${[bookmark.uid, ...rest].join(".")}`);
+      return;
+    }
+
+    try {
+      const { room, wall, shelf, book, page } = babel.getPage(
+        [bookmark.room, ...rest].join(".")
+      );
+
+      ctx.body = `${room}.${wall}.${shelf}.${book}.${page}`;
+    } catch (e) {
+      ctx.status = 500;
+      ctx.body = e.message;
+    }
+  });
+
   dynamicRouter.use(async (ctx, next) => {
     ctx.set("Cache-Control", "no-cache, no-store");
     await next();

@@ -6,11 +6,8 @@ html(lang="en")
 
         main
             div.PageInfo
-                pre room #{info.roomShort} / wall #{info.wall} / shelf #{info.shelf} / book #{info.book} / page #{info.page}
-                - if (info.room !== info.roomShort)
-                    details
-                        summary View full page reference (can be very long when expanded)
-                        p #{info.room}.#{info.wall}.#{info.shelf}.#{info.book}.#{info.page}
+                pre Room #{info.roomShort} / Wall #{info.wall} / Shelf #{info.shelf} / Book #{info.book} / Page #{info.page}
+                a(href=`/fullref/${info.uid}.${info.wall}.${info.shelf}.${info.book}.${info.page}`, target="_blank") Full reference
 
             div.PageContentWrapper
                 div.PageContent

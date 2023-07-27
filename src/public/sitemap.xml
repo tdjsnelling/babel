@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://libraryofbabel.tdjs.tech</loc>
+        <loc>https://libraryofbabel.app</loc>
     </url>
     <url>
-        <loc>https://libraryofbabel.tdjs.tech/browse</loc>
+        <loc>https://libraryofbabel.app/browse</loc>
     </url>
     <url>
-        <loc>https://libraryofbabel.tdjs.tech/search</loc>
+        <loc>https://libraryofbabel.app/search</loc>
     </url>
     <url>
-        <loc>https://libraryofbabel.tdjs.tech/about</loc>
+        <loc>https://libraryofbabel.app/about</loc>
     </url>
 </urlset>

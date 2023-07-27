@@ -4,7 +4,7 @@ An experiment to try and create a functioning Library of Babel.
 
 ### What is it?
 
-[The Library of Babel](https://libraryofbabel.tdjs.tech/pdf/Borges-The-Library-of-Babel.pdf) is a short story written by [Jorge Luis Borges](https://en.wikipedia.org/wiki/Jorge_Luis_Borges).
+[The Library of Babel](https://libraryofbabel.app/pdf/Borges-The-Library-of-Babel.pdf) is a short story written by [Jorge Luis Borges](https://en.wikipedia.org/wiki/Jorge_Luis_Borges).
 
 It describes a library made up of an “indefinite, perhaps infinite” number hexagonal of rooms, each lined on four sides by a bookshelf of five shelves, each self containing thirty-two books. Each book is four hundred and ten pages of forty lines, each line of eighty characters.
 
@@ -34,7 +34,7 @@ The initial, limited implementation is still available on the `v1` branch.
 
 ### How do I use it?
 
-You can play with a live instance at [libraryofbabel.tdjs.tech](https://libraryofbabel.tdjs.tech).
+You can play with a live instance at [libraryofbabel.app](https://libraryofbabel.app).
 
 Alternatively, you can clone this repo and run it yourself. Running with Docker is preferred to prevent issues across different environments.
 
@@ -55,7 +55,7 @@ The contents of each book is intrinsically linked to it’s index in the library
 
 Each book will contain the same contents forever. There is no trickery going on to simply show you a made-up book containing the text that you search for.
 
-You can read more on the [home](https://libraryofbabel.tdjs.tech) and [about](https://libraryofbabel.tdjs.tech/about) pages.
+You can read more on the [home](https://libraryofbabel.app) and [about](https://libraryofbabel.app/about) pages.
 
 #### Detailed explanation
 
