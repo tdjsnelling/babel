@@ -1,4 +1,5 @@
 const form = document.querySelector("form");
+const button = document.querySelector("form button");
 
 form.onsubmit = async (e) => {
   e.preventDefault();
@@ -11,6 +12,9 @@ form.onsubmit = async (e) => {
     formData.get("page"),
   ].join(".");
 
+  button.disabled = true;
+  button.innerText = "Loading...";
+
   const res = await fetch("/get-uid", {
     method: "POST",
     headers: {
@@ -18,6 +22,9 @@ form.onsubmit = async (e) => {
     },
     body: JSON.stringify({ identifier }),
   });
+
+  button.disabled = false;
+  button.innerText = "Go";
 
   if (res.ok) {
     const ref = await res.text();

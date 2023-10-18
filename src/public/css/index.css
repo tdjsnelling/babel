@@ -220,6 +220,11 @@ footer a {
   cursor: pointer;
 }
 
+.SearchForm button[disabled], .BrowseForm button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .InfoBox {
   border: 1px solid var(--colour-border);
   border-radius: 2px;

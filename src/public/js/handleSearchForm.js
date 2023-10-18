@@ -1,8 +1,12 @@
 const form = document.querySelector("form");
+const button = document.querySelector("form button");
 
 form.onsubmit = async (e) => {
   e.preventDefault();
   const formData = new FormData(form);
+
+  button.disabled = true;
+  button.innerText = "Loading...";
 
   const res = await fetch("/do-search", {
     method: "POST",
@@ -14,6 +18,9 @@ form.onsubmit = async (e) => {
       mode: formData.get("mode"),
     }),
   });
+
+  button.disabled = false;
+  button.innerText = "Search";
 
   if (res.ok) {
     const { ref, highlight } = await res.json();
