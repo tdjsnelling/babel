@@ -1,0 +1,21 @@
+services:
+  babel:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/babel
+    healthcheck:
+      test: curl --fail http://localhost:3000 || exit 1
+      interval: 60s
+      retries: 3
+      start_period: 30s
+      timeout: 1s
+    restart: always
+  mongodb:
+    image: "mongo"
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - "./data:/data/db"
+    restart: always
