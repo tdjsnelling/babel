@@ -4,6 +4,8 @@
   --colour-grey: #545454;
   --colour-light-grey: #888;
   --colour-border: #ddd;
+  --font-mono: "Source Code Pro", monospace;
+  --font-serif: "Lora", serif;
 }
 
 *,
@@ -20,7 +22,7 @@ body {
   padding: 20px;
   background-color: var(--colour-bg);
   color: var(--colour-fg);
-  font-family: "Lora", serif;
+  font-family: var(--font-serif);
   font-size: 14px;
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
@@ -114,7 +116,7 @@ footer a {
 }
 
 .PageInfo details p {
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   word-break: break-all;
   user-select: all;
   border: 1px solid var(--colour-border);
@@ -142,7 +144,7 @@ footer a {
   position: sticky;
   left: 0;
   background-color: var(--colour-bg);
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.2;
 }
@@ -152,7 +154,7 @@ footer a {
 }
 
 .PageContent pre {
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.2;
 }
@@ -176,17 +178,18 @@ footer a {
 .PageNavigation .PageSelector select {
   background-color: var(--colour-bg);
   margin-left: 5px;
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
 }
 
-.SearchForm textarea, .BrowseForm textarea {
+.SearchForm textarea,
+.BrowseForm textarea {
   appearance: none;
   display: block;
   width: 100%;
   max-width: 100%;
   min-width: 100%;
   padding: 10px;
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   font-size: 14px;
   border: 1px solid grey;
   border-radius: 2px;
@@ -207,11 +210,12 @@ footer a {
   margin-right: 5px;
 }
 
-.SearchForm button, .BrowseForm button {
+.SearchForm button,
+.BrowseForm button {
   appearance: none;
   width: 100%;
   padding: 10px;
-  font-family: "Lora", serif;
+  font-family: var(--font-serif);
   font-size: 14px;
   border: 1px solid grey;
   border-radius: 2px;
@@ -220,7 +224,8 @@ footer a {
   cursor: pointer;
 }
 
-.SearchForm button[disabled], .BrowseForm button[disabled] {
+.SearchForm button[disabled],
+.BrowseForm button[disabled] {
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -258,7 +263,7 @@ footer a {
   display: block;
   width: 100%;
   padding: 10px;
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   font-size: 14px;
   border: 1px solid grey;
   border-radius: 2px;
@@ -302,7 +307,7 @@ footer a {
 }
 
 .code {
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   background-color: rgba(0, 0, 0, 0.075);
   padding: 0 3px;
   border-radius: 2px;
