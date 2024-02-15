@@ -29,6 +29,17 @@ html(lang="en")
             p It contains every book that has ever been written, and every book that ever will be written.
 
             h2 How does it work?
+            p Most importantly, the library, and it’s books, are not
+                |
+                |
+                em stored
+                |
+                | anywhere — more on that below. Instead, a book is
+                |
+                |
+                em generated
+                |
+                | by a mathematical function when you view it. Once you view it, it is still not stored anywhere — the same way that by computing 2 × 5, the resulting 10 is not being stored anywhere, it is simply the output of the function. The next person to visit that same book will compute the same function again, and get the same answer.
             p In the most simple terms:
             ol
                 li Each book is given a numerical index. The first book on the first shelf is book 1, the first book on the second shelf is 33 and so on, until the last book in the entire library — which has the index
@@ -37,9 +48,9 @@ html(lang="en")
                     span.nobreak 29
                         span.super 1,312,000
                     | .
-                li This (usually very large) number is run through a mathematical function to produce another unique number of 1,312,000 digits, which we represent in base-29 (29 is the number of characters in our limited alphabet).
+                li This (usually very large) number is run through a mathematical function to produce another unique number of 1,312,000 digits, which we represent in base-29 (we generally count in base-10, e.g. 0 through 9. Base-29 just means we count with more numerals, in this case 0 through S).
                 li Each digit of the base-29 result is mapped to the character at that position in the limited 29 character alphabet (0 → a, 1 → b, ...) to produce the content of that book.
-            p Crucially, the mathematical function is reversible meaning that we can instead give it the contents of a book and determine the numerical index of the book that it appears in.
+            p Crucially, the mathematical function is reversible meaning that we can instead give it the contents of a book and work backwards determine the numerical index of the book that it appears in.
             p Once a book is generated from it’s index, it is split up and displayed page by page. Each page is given an identifier derived from the numerical index, in the format
                 |
                 |

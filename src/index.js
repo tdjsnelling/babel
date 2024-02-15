@@ -8,6 +8,7 @@ import { v4 as uuid, validate } from "uuid";
 import dotenv from "dotenv";
 import path from "path";
 import bindings from "bindings";
+import BigNumber from "bignumber.js";
 import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants.js";
 import {
   getEmptyBookContent,
@@ -20,6 +21,8 @@ import Bookmark from "./schema/bookmark.js";
 dotenv.config();
 
 const babel = bindings("babel");
+
+BigNumber.config({ DECIMAL_PLACES: 1e6 });
 
 const getBookmark = async (roomOrUid) => {
   const isUUID = validate(roomOrUid);
@@ -116,7 +119,12 @@ const connectToDatabase = async () => {
   });
 
   staticRouter.get("/", async (ctx) => {
-    await ctx.render("index");
+    const bookmarkCount = await Bookmark.estimatedDocumentCount();
+    const percent = BigNumber(bookmarkCount)
+      .div(BigNumber(10).pow(BigNumber(191862)))
+      .multipliedBy(100)
+      .toFixed();
+    await ctx.render("index", { bookmarkCount, percent });
   });
 
   staticRouter.get("/about", async (ctx) => {

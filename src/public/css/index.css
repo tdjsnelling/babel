@@ -283,7 +283,7 @@ footer a {
   .Librarian {
     width: 300px;
     float: right;
-    margin-left: 20px;
+    margin-left: 15px;
     margin-bottom: 15px;
   }
 }
@@ -297,6 +297,10 @@ footer a {
 
 .nobreak {
   white-space: nowrap;
+}
+
+.break {
+  word-break: break-all;
 }
 
 .super {
