@@ -7,3 +7,4 @@ export const LINES = 40;
 export const CHARS = 80;
 export const PAGE_LENGTH = LINES * CHARS;
 export const BOOK_LENGTH = PAGE_LENGTH * PAGES;
+export const BASE29_ALPHA = "0123456789abcdefghijklmnopqrs";

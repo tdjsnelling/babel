@@ -309,7 +309,7 @@ export async function initialiseNumbers(binding: GMPFunctions): Promise<{
   C: mpz_ptr;
   I: mpz_ptr;
 }> {
-  const nums = fs.readFileSync("./src/core/numbers", "utf8");
+  const nums = fs.readFileSync("./numbers", "utf8");
   const [N_STR, C_STR, I_STR] = nums.split("\n");
 
   const N = binding.mpz_t();

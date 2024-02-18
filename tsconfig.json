@@ -109,6 +109,9 @@
   "include": [
     "src/**/*",
     "node_modules/popular-english-words/index.js",
-    "node_modules/popular-english-words/words.js",
+    "node_modules/popular-english-words/words.js"
+  ],
+  "exclude": [
+    "src/public"
   ]
 }

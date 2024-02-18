@@ -8,8 +8,8 @@
   "private": false,
   "scripts": {
     "build": "tsc",
-    "dev": "concurrently --passthrough-arguments --kill-others \"yarn build --watch\" \"nodemon --enable-source-maps dist/index.js {1}\"",
-    "start": "node dist/index.js"
+    "dev": "concurrently --passthrough-arguments --kill-others \"yarn build --watch\" \"nodemon --enable-source-maps dist/src/index.js {1}\"",
+    "start": "node dist/src/index.js"
   },
   "devDependencies": {
     "@types/koa": "^2.14.0",

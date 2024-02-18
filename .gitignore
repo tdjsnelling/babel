@@ -3,7 +3,4 @@ node_modules
 .DS_Store
 .vscode
 .env
-src/core/bin
-/numbers
-build
 dist
