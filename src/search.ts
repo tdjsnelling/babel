@@ -1,7 +1,8 @@
-import { ALPHA, CHARS, LINES, PAGES } from "./constants.js";
+// @ts-ignore
 import { words } from "popular-english-words";
+import { ALPHA, CHARS, LINES, PAGES } from "./constants";
 
-const getHighlightPos = (start, length) => {
+const getHighlightPos = (start: number, length: number) => {
   const startLine = Math.floor(start / CHARS);
   const startCol = start % CHARS;
 
@@ -12,7 +13,7 @@ const getHighlightPos = (start, length) => {
   return { startLine, startCol, endLine, endCol };
 };
 
-export const getEmptyBookContent = (content) => {
+export const getEmptyBookContent = (content: string) => {
   let book = content
     .split("\n")
     .map((line) => {
@@ -32,7 +33,7 @@ export const getEmptyBookContent = (content) => {
   return book;
 };
 
-export const getEmptyPageBookContent = (content) => {
+export const getEmptyPageBookContent = (content: string) => {
   const randomPage = Math.floor(Math.random() * PAGES);
   const startChar = randomPage * LINES * CHARS;
 
@@ -68,7 +69,7 @@ export const getEmptyPageBookContent = (content) => {
   return { book, page: randomPage + 1 };
 };
 
-export const getRandomCharsBookContent = (content) => {
+export const getRandomCharsBookContent = (content: string) => {
   const randomStartPosition =
     Math.floor(
       Math.random() * (PAGES * LINES * CHARS - content.length + 1) +
@@ -92,8 +93,8 @@ export const getRandomCharsBookContent = (content) => {
   return { book, highlight };
 };
 
-export const getRandomWordsBookContent = (content) => {
-  const popularWords = words.getMostPopular(3000);
+export const getRandomWordsBookContent = (content: string) => {
+  const popularWords = words.getMostPopular(3000) as string[];
 
   const randomStartPosition =
     Math.floor(

@@ -5,3 +5,5 @@ export const BOOKS = 32;
 export const PAGES = 410;
 export const LINES = 40;
 export const CHARS = 80;
+export const PAGE_LENGTH = LINES * CHARS;
+export const BOOK_LENGTH = PAGE_LENGTH * PAGES;

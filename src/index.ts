@@ -7,24 +7,28 @@ import mongoose from "mongoose";
 import { v4 as uuid, validate } from "uuid";
 import dotenv from "dotenv";
 import path from "path";
-import bindings from "bindings";
 import BigNumber from "bignumber.js";
-import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants.js";
+import { init as gmp_init } from "gmp-wasm";
+import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants";
+import {
+  initialiseNumbers,
+  generateContent,
+  lookupContent,
+  getRandomIdentifier,
+} from "./babel";
 import {
   getEmptyBookContent,
   getEmptyPageBookContent,
   getRandomCharsBookContent,
   getRandomWordsBookContent,
-} from "./search.js";
-import Bookmark from "./schema/bookmark.js";
+} from "./search";
+import Bookmark from "./schema/bookmark";
 
 dotenv.config();
 
-const babel = bindings("babel");
-
 BigNumber.config({ DECIMAL_PLACES: 1e6 });
 
-const getBookmark = async (roomOrUid) => {
+const getBookmark = async (roomOrUid: string) => {
   const isUUID = validate(roomOrUid);
   if (isUUID) {
     return Bookmark.findOne({ uid: roomOrUid });
@@ -45,7 +49,12 @@ const getBookmark = async (roomOrUid) => {
   }
 };
 
-const checkBounds = (wall, shelf, book, page) => {
+const checkBounds = (
+  wall: number,
+  shelf: number,
+  book: number,
+  page: number
+) => {
   if (isNaN(wall) || isNaN(shelf) || isNaN(book) || isNaN(page))
     throw new Error("Wall, book, shelf, page must all be integers");
 
@@ -69,8 +78,8 @@ const connectToDatabase = async () => {
       console.log("lost connection to database");
       setTimeout(connectToDatabase, 5000);
     });
-    await mongoose.connect(process.env.MONGO_URL);
-  } catch (e) {
+    await mongoose.connect(process.env.MONGO_URL as string);
+  } catch (e: any) {
     console.error(`could not connect to database: ${e.message}`);
     setTimeout(connectToDatabase, 5000);
   }
@@ -141,24 +150,37 @@ const connectToDatabase = async () => {
 
   staticRouter.get("/ref/:identifier", async (ctx) => {
     const { identifier } = ctx.params;
-    const [roomOrUid, ...rest] = identifier.split(".");
+    const [roomOrUid, idWall, idShelf, idBook, idPage] = identifier.split(".");
 
     try {
-      checkBounds(...rest);
-    } catch (e) {
+      checkBounds(
+        Number(idWall),
+        Number(idShelf),
+        Number(idBook),
+        Number(idPage)
+      );
+    } catch (e: any) {
       ctx.status = 400;
       ctx.body = e.message;
       return;
     }
 
     const bookmark = await getBookmark(roomOrUid);
+    if (!bookmark) {
+      throw new Error("That bookmark does not exist");
+    }
+
     if (bookmark.uid !== roomOrUid) {
       ctx.status = 302;
-      ctx.redirect(`/ref/${[bookmark.uid, ...rest].join(".")}`);
+      ctx.redirect(
+        `/ref/${[bookmark.uid, idWall, idShelf, idBook, idPage].join(".")}`
+      );
       return;
     }
 
     try {
+      const { binding } = await gmp_init();
+      const { C, N } = await initialiseNumbers(binding);
       const {
         content,
         roomShort,
@@ -169,13 +191,25 @@ const connectToDatabase = async () => {
         page,
         prevIdentifier,
         nextIdentifier,
-      } = babel.getPage([bookmark.room, ...rest].join("."));
+      } = await generateContent(
+        binding,
+        [bookmark.room, idWall, idShelf, idBook, idPage].join("."),
+        C,
+        N
+      );
+      await binding.reset();
 
       const [prevRoom, ...prevRest] = prevIdentifier.split(".");
       const prevBookmark = await getBookmark(prevRoom);
+      if (!prevBookmark) {
+        throw new Error("Prev bookmark does not exist");
+      }
 
       const [nextRoom, ...nextRest] = nextIdentifier.split(".");
       const nextBookmark = await getBookmark(nextRoom);
+      if (!nextBookmark) {
+        throw new Error("Next bookmark does not exist");
+      }
 
       await ctx.render("page", {
         info: {
@@ -192,7 +226,7 @@ const connectToDatabase = async () => {
         prevPage: [prevBookmark.uid, ...prevRest].join("."),
         nextPage: [nextBookmark.uid, ...nextRest].join("."),
       });
-    } catch (e) {
+    } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;
     }
@@ -200,30 +234,47 @@ const connectToDatabase = async () => {
 
   staticRouter.get("/fullref/:identifier", async (ctx) => {
     const { identifier } = ctx.params;
-    const [roomOrUid, ...rest] = identifier.split(".");
+    const [roomOrUid, idWall, idShelf, idBook, idPage] = identifier.split(".");
 
     try {
-      checkBounds(...rest);
-    } catch (e) {
+      checkBounds(
+        Number(idWall),
+        Number(idShelf),
+        Number(idBook),
+        Number(idPage)
+      );
+    } catch (e: any) {
       ctx.status = 400;
       ctx.body = e.message;
       return;
     }
 
     const bookmark = await getBookmark(roomOrUid);
+    if (!bookmark) {
+      throw new Error("That bookmark does not exist");
+    }
+
     if (bookmark.uid !== roomOrUid) {
       ctx.status = 302;
-      ctx.redirect(`/fullref/${[bookmark.uid, ...rest].join(".")}`);
+      ctx.redirect(
+        `/fullref/${[bookmark.uid, idWall, idShelf, idBook, idPage].join(".")}`
+      );
       return;
     }
 
     try {
-      const { room, wall, shelf, book, page } = babel.getPage(
-        [bookmark.room, ...rest].join(".")
+      const { binding } = await gmp_init();
+      const { C, N } = await initialiseNumbers(binding);
+      const { room, wall, shelf, book, page } = await generateContent(
+        binding,
+        [bookmark.room, idWall, idShelf, idBook, idPage].join("."),
+        C,
+        N
       );
+      await binding.reset();
 
       ctx.body = `${room}.${wall}.${shelf}.${book}.${page}`;
-    } catch (e) {
+    } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;
     }
@@ -235,14 +286,26 @@ const connectToDatabase = async () => {
   });
 
   dynamicRouter.post("/get-uid", async (ctx) => {
-    const { identifier } = ctx.request.body;
+    const { identifier } = ctx.request.body as { identifier: string };
     const [roomOrUid, ...rest] = identifier.split(".");
-    const bookmark = await getBookmark(roomOrUid);
-    ctx.body = [bookmark.uid, ...rest].join(".");
+
+    try {
+      const bookmark = await getBookmark(roomOrUid);
+      if (!bookmark) {
+        throw new Error("That bookmark does not exist");
+      }
+      ctx.body = [bookmark.uid, ...rest].join(".");
+    } catch (e: any) {
+      ctx.status = 500;
+      ctx.body = e.message;
+    }
   });
 
   dynamicRouter.post("/do-search", async (ctx) => {
-    const { content, mode } = ctx.request.body;
+    const { content, mode } = ctx.request.body as {
+      content: string;
+      mode: string;
+    };
 
     const lowerCase = content.toLowerCase();
     const contentNoNewlines = lowerCase.replace(/\r/g, "").replace(/\n/g, "");
@@ -255,7 +318,7 @@ const connectToDatabase = async () => {
       return;
     }
 
-    let book;
+    let book = "";
     let highlight;
     let page = 1;
 
@@ -271,20 +334,26 @@ const connectToDatabase = async () => {
 
     if (highlight) {
       const { startLine, startCol, endLine, endCol } = highlight;
-      page = Math.ceil(parseInt(startLine) / LINES);
+      page = Math.ceil(startLine / LINES);
       const newStartLine = startLine - (page - 1) * LINES;
       const newEndLine = endLine - (page - 1) * LINES;
       highlight = [newStartLine, startCol, newEndLine, endCol].join(":");
     }
 
     try {
-      const identifier = babel.searchContent(book, page);
+      const { binding } = await gmp_init();
+      const { I, N } = await initialiseNumbers(binding);
+      const identifier = await lookupContent(binding, book, I, N, page);
+      await binding.reset();
 
       const [room, ...rest] = identifier.split(".");
       const bookmark = await getBookmark(room);
+      if (!bookmark) {
+        throw new Error("That bookmark does not exist");
+      }
 
       ctx.body = { ref: [bookmark.uid, ...rest].join("."), highlight };
-    } catch (e) {
+    } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;
     }
@@ -292,13 +361,19 @@ const connectToDatabase = async () => {
 
   dynamicRouter.get("/random", async (ctx) => {
     try {
-      const identifier = babel.getRandomIdentifier();
+      const { binding } = await gmp_init();
+      const identifier = await getRandomIdentifier(binding);
+      await binding.reset();
+
       const [room, ...rest] = identifier.split(".");
       const bookmark = await getBookmark(room);
+      if (!bookmark) {
+        throw new Error("That bookmark does not exist");
+      }
 
       ctx.status = 302;
       ctx.redirect(`/ref/${[bookmark.uid, ...rest].join(".")}`);
-    } catch (e) {
+    } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;
     }
