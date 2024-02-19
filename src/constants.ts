@@ -1,4 +1,4 @@
-export const ALPHA = "abcdefghijklmnopqrstuvwxyz., ";
+export const ALPHA = "abcdefghijklmnopqrstuvwxyz.,!?- ";
 export const WALLS = 4;
 export const SHELVES = 5;
 export const BOOKS = 32;
@@ -7,4 +7,5 @@ export const LINES = 40;
 export const CHARS = 80;
 export const PAGE_LENGTH = LINES * CHARS;
 export const BOOK_LENGTH = PAGE_LENGTH * PAGES;
-export const BASE29_ALPHA = "0123456789abcdefghijklmnopqrs";
+export const BASE32_ALPHA = "0123456789abcdefghijklmnopqrstuv";
+export const BASE32_LAST = BASE32_ALPHA[BASE32_ALPHA.length - 1];

@@ -1,7 +1,7 @@
 /*
   babel.ts
   Tom Snelling 2023-2024
-  A complete Library of Babel in under 350 LOC
+  A complete Library of Babel in ~350 LOC
 */
 
 import fs from "fs";
@@ -27,7 +27,7 @@ async function getSequentialContentNumberFromIdentifier(
 
   const intRoom = binding.mpz_t();
   binding.mpz_init(intRoom);
-  binding.mpz_set_string(intRoom, room, 62);
+  binding.mpz_set_string(intRoom, room, 32);
 
   if (binding.mpz_cmp_ui(intRoom, 1) < 0) {
     throw new Error("Room cannot be smaller than 1");
@@ -113,7 +113,7 @@ async function getIdentifierFromSequentialContentNumber(
 
   binding.mpz_add_ui(seqNumber, seqNumber, 1);
 
-  const roomString = binding.mpz_to_string(room, 62);
+  const roomString = binding.mpz_to_string(room, 32);
   const wallString = binding.mpz_to_string(wall, 10);
   const shelfString = binding.mpz_to_string(shelf, 10);
   const bookString = binding.mpz_to_string(seqNumber, 10);
