@@ -89,7 +89,7 @@ async function getIdentifierFromSequentialContentNumber(
 ): Promise<string> {
   binding.mpz_sub_ui(seqNumber, seqNumber, 1);
 
-  if (binding.mpz_sgn(seqNumber) == -1) {
+  if (binding.mpz_sgn(seqNumber) === -1) {
     return "1.1.1.1.1";
   }
 
@@ -284,20 +284,12 @@ export async function getRandomIdentifier(
   binding.mpz_urandomm(randomSeqNumber, randState, uniqueBooks);
   binding.mpz_add_ui(randomSeqNumber, randomSeqNumber, 1);
 
-  const randomPage = binding.mpz_t();
-  binding.mpz_init(randomPage);
-
-  const pages = binding.mpz_t();
-  binding.mpz_init(pages);
-  binding.mpz_set_ui(pages, PAGES);
-
-  binding.mpz_urandomm(randomPage, randState, pages);
-  binding.mpz_add_ui(randomPage, randomPage, 1);
+  const randomPage = Math.floor(Math.random() * PAGES + 1);
 
   return await getIdentifierFromSequentialContentNumber(
     binding,
     randomSeqNumber,
-    binding.mpz_get_ui(randomPage)
+    randomPage
   );
 }
 
