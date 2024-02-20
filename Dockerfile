@@ -1,31 +1,28 @@
-FROM node:18-buster
+FROM node:18-buster AS builder
 WORKDIR /app
-
-RUN apt update && apt -y install \
-    build-essential \
-    m4 \
-    gcc \
-    wget
-
-RUN wget --quiet https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz && \
-    tar xf ./gmp-6.2.1.tar.xz && \
-    cd gmp-6.2.1 && \
-    ./configure && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -r gmp-6.2.1*
 
 COPY package.json ./package.json
 COPY yarn.lock ./yarn.lock
-COPY binding.gyp ./binding.gyp
 
-COPY src/core ./src/core
-COPY src/core/numbers ./numbers
+RUN yarn install
+
+COPY src ./src
+COPY tsconfig.json ./tsconfig.json
+
+RUN yarn build
+
+FROM node:18-buster
+WORKDIR /app
+
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/yarn.lock ./yarn.lock
 
 RUN yarn install --production
 
-COPY src ./src
+COPY --from=builder /app/dist ./dist
+COPY src/views ./src/views
+COPY src/public ./src/public
+COPY numbers ./numbers
 
 EXPOSE 3000
 

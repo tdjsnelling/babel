@@ -1,6 +1,12 @@
 doctype html
 html(lang="en")
     include includes/head.pug
+
+    - if (prevPage !== null)
+        link(rel="prefetch", href=`/ref/${prevPage}`)
+    - if (nextPage !== null)
+        link(rel="prefetch", href=`/ref/${nextPage}`)
+
     body
         include includes/nav.pug
 
