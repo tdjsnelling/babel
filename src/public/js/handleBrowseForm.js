@@ -35,7 +35,7 @@ form.onsubmit = async (e) => {
 const room = form.querySelector('[name="room"]');
 room.oninput = (e) => {
   if (
-    (!e.data || !/[a-zA-Z0-9]/.test(e.data)) &&
+    (!e.data || !/[0-9a-v]/.test(e.data)) &&
     e.inputType !== "deleteContentBackward" &&
     e.inputType !== "deleteContentForward"
   ) {

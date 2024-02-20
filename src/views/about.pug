@@ -14,10 +14,10 @@ html(lang="en")
                 a(href="/") home page
                 |
                 | first.
-            p The Library of Babel is a fictional library that contains every possible unique book of 1,312,000 characters. Each book has 410 pages of 40 lines of 80 characters each. 410 × 40 × 80 = 1,312,000. As each book consists of a combination of the same 29 characters, the total number of unique books is
+            p The Library of Babel is a fictional library that contains every possible unique book of 1,312,000 characters. Each book has 410 pages of 40 lines of 80 characters each. 410 × 40 × 80 = 1,312,000. As each book consists of a combination of the same 32 characters, the total number of unique books is
                 |
                 |
-                span.nobreak 29
+                span.nobreak 32
                     span.super 1,312,000
                 | . For comparison, it is estimated that there are around
                 |
@@ -45,11 +45,11 @@ html(lang="en")
                 li Each book is given a numerical index. The first book on the first shelf is book 1, the first book on the second shelf is 33 and so on, until the last book in the entire library — which has the index
                     |
                     |
-                    span.nobreak 29
+                    span.nobreak 32
                         span.super 1,312,000
                     | .
-                li This (usually very large) number is run through a mathematical function to produce another unique number of 1,312,000 digits, which we represent in base-29 (we generally count in base-10, e.g. 0 through 9. Base-29 just means we count with more numerals, in this case 0 through S).
-                li Each digit of the base-29 result is mapped to the character at that position in the limited 29 character alphabet (0 → a, 1 → b, ...) to produce the content of that book.
+                li This (usually very large) number is run through a mathematical function to produce another unique number of 1,312,000 digits, which we represent in base-32 (we generally count in base-10, e.g. 0 through 9. Base-32 just means we count with more numerals, in this case 0-9 and then A-V).
+                li Each digit of the base-32 result is mapped to the character at that position in the limited 32 character alphabet (0 → a, 1 → b, ...) to produce the content of that book.
             p Crucially, the mathematical function is reversible meaning that we can instead give it the contents of a book and work backwards determine the numerical index of the book that it appears in.
             p Once a book is generated from it’s index, it is split up and displayed page by page. Each page is given an identifier derived from the numerical index, in the format
                 |
@@ -75,7 +75,7 @@ html(lang="en")
                 |
                 em actual
                 |
-                | room identifiers get incredibly long, up to roughly a million digits when represented in base-62. This makes them much too long to be used in URLs, so instead a ‘bookmark’ is created and stored for the room in the form of a UUID when it is first visited. This UUID is used in place of the room identifier in the page URL.
+                | room identifiers get incredibly long, up to roughly a million characters. This makes them much too long to be used in URLs, so instead a ‘bookmark’ is created and stored for the room in the form of a UUID when it is first visited. This UUID is used in place of the room identifier in the page URL.
             p However, there are orders of magnitude more possible room identifiers than there are possible UUIDs. In theory, eventually when all UUIDs are used up then they will start to be overwritten as new, undiscovered rooms are accessed for the first time. In reality, this limit will never be reached.
 
 
@@ -84,14 +84,14 @@ html(lang="en")
             p Building a Library of Babel this way would require unobtainable amounts of storage. A single book’s content takes up 1,312,000 bytes (1.31 MB), with a single byte per ASCII character. 1,312,000 bytes multiplied by
                 |
                 |
-                span.nobreak 29
+                span.nobreak 32
                     span.super 1,312,000
                 |
                 | unique books gives us a total size of
                 |
                 |
-                span.nobreak 1.955×10
-                    span.super 1,918,660
+                span.nobreak 1.753×10
+                    span.super 1,974,750
                 |
                 | TB — an infeasible amount of data to store, to say the very least.
             p Thus to build a virtual Library of Babel, we have to use a method that doesn’t require any storage. Books are generated on the fly based on their numerical index, and the same index will continue to generate the same book forever, unless the algorithm is changed.
@@ -110,11 +110,11 @@ html(lang="en")
 
             h2 What makes this version of the Library different?
             p As far as I am aware, this is the only implementation of the Library that contains every unique book, rather than just every unique page. This results in a much larger library, and means that you can search for content longer than a single page.
-            p This comes as a result of re-writing the core library logic in C and making use of
+            p This comes as a result of re-writing the calculations to use
                 |
                 |
                 a(href="https://gmplib.org/", target="_blank") GMP
-                | , a powerful multiple precision arithmetic library. Porting the original JS core logic to C allows for much faster and more efficient calculations, making working with the very large numbers required possible.
+                | , a powerful multiple precision arithmetic library for C/C++. Porting the original pure-JS core logic to use GMP allows for much faster and more efficient calculations, making working with the very large numbers required possible.
 
             h2 Where do the images on this site come from?
             p They are all generated by Midjourney AI.

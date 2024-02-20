@@ -30,7 +30,7 @@ form.onsubmit = async (e) => {
   }
 };
 
-const ALPHA = "abcdefghijklmnopqrstuvwxyz., ";
+const ALPHA = "abcdefghijklmnopqrstuvwxyz.,!?- ";
 const input = document.querySelector("textarea");
 input.oninput = (e) => {
   if (e.inputType === "insertFromPaste") {

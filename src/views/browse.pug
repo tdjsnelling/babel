@@ -10,7 +10,7 @@ html(lang="en")
             form.BrowseForm
                 label
                     p Room
-                    textarea(name="room", rows=5, required=true, placeholder="Enter an alphanumeric room identifier up to 1,070,449 characters long.")
+                    textarea(name="room", rows=5, required=true, placeholder="Enter an alphanumeric room identifier made up of the characters 0-9 and a-v.")
 
                 div.Numbers
                     label
@@ -42,9 +42,6 @@ html(lang="en")
                         input(name="page", type="number", min=1, max=410, value=1, required=true)
 
                 button Go
-
-            div.InfoBox
-                em 1,070,449 is the length of the identifier of the very last room in the library.
 
         include includes/footer.pug
 

@@ -228,7 +228,7 @@ export async function generateContent(
 
 /*
   Given some content as a string, pad that string to BOOK_LENGTH, transform it
-  into a base-29 'hash', and calculate it's book index via modular
+  into a base-32 'hash', and calculate it's book index via modular
   multiplication.
 */
 export async function lookupContent(

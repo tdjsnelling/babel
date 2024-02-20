@@ -7,7 +7,6 @@ import mongoose from "mongoose";
 import { v4 as uuid, validate } from "uuid";
 import dotenv from "dotenv";
 import path from "path";
-import BigNumber from "bignumber.js";
 import { init as gmp_init } from "gmp-wasm";
 import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants";
 import {
@@ -25,8 +24,6 @@ import {
 import Bookmark from "./schema/bookmark";
 
 dotenv.config();
-
-BigNumber.config({ DECIMAL_PLACES: 1e6 });
 
 const getBookmark = async (roomOrUid: string) => {
   const isUUID = validate(roomOrUid);
@@ -129,11 +126,7 @@ const connectToDatabase = async () => {
 
   staticRouter.get("/", async (ctx) => {
     const bookmarkCount = await Bookmark.estimatedDocumentCount();
-    const percent = BigNumber(bookmarkCount)
-      .div(BigNumber(10).pow(BigNumber(191862)))
-      .multipliedBy(100)
-      .toFixed();
-    await ctx.render("index", { bookmarkCount, percent });
+    await ctx.render("index", { bookmarkCount });
   });
 
   staticRouter.get("/about", async (ctx) => {
