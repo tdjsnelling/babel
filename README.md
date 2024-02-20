@@ -1,6 +1,6 @@
 # babel
 
-An experiment to try and create a functioning Library of Babel.
+A functioning, complete, true-to-scale re-creation of the Library of Babel.
 
 ### What is it?
 
@@ -71,6 +71,12 @@ $ yarn start
 You can then look up a page at the `/ref/...` endpoint, e.g. `/ref/1.1.1.1.1`.
 
 You can search for a page containing some content at `/search`, navigate to a specific page at `/browse`, and you can visit a random page at `/random`.
+
+To speed up database operations, it is recommended to create an index with:
+
+```
+mongosh> db.bookmarks.createIndex({ "room": 1 })
+```
 
 ### How does it work?
 
