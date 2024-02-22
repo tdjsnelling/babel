@@ -88,7 +88,8 @@ const connectToDatabase = async () => {
   const app = new Koa();
   const staticRouter = new Router();
   const dynamicRouter = new Router();
-  const pug = new Pug({
+
+  new Pug({
     viewPath: path.resolve(path.resolve(), "src/views"),
     app,
   });

@@ -62,7 +62,7 @@ async function findModularInverse(
   binding.mpz_init(C);
   binding.mpz_set_string(C, randomStartNum, ALPHA.length);
 
-  while (true) {
+  while (binding.mpz_cmp_ui(C, 0) > 0) {
     const foundCoprime = await isCoprime(binding, N, C);
 
     if (foundCoprime) {

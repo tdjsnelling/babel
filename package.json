@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "concurrently --passthrough-arguments --kill-others \"yarn build --watch\" \"nodemon --enable-source-maps dist/src/index.js {1}\"",
-    "start": "node dist/src/index.js"
+    "start": "node dist/src/index.js",
+    "lint": "eslint src"
   },
   "devDependencies": {
     "@types/koa": "^2.14.0",
@@ -17,6 +18,8 @@
     "@types/koa-static": "^4.0.4",
     "@types/koa__router": "^12.0.4",
     "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
     "concurrently": "^8.2.2",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.4.0",

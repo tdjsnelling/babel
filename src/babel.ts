@@ -1,7 +1,7 @@
 /*
   babel.ts
   Tom Snelling 2023-2024
-  A complete Library of Babel in ~350 LOC
+  A complete Library of Babel in ~300 LOC
 */
 
 import fs from "fs";
