@@ -1,0 +1,9 @@
+mixin seo(title="Library of Babel — Explore the Library of Babel online", description="Browse, explore, and search a complete re-creation of Jorge Luis Borges' Library of Babel.")
+    title
+        | #{title} — Library of Babel
+    meta(name="description", content=description)
+    meta(name="og:title", property="og:title", content=`${title} — Library of Babel`)
+    meta(name="og:description", property="og:description", content=description)
+    meta(name="og:site_name", property="og:site_name", content="Library of Babel — Explore the Library of Babel online")
+    meta(name="og:url", property="og:url", content="https://libraryofbabel.app")
+    meta(name="og:type", property="og:type", content="website")

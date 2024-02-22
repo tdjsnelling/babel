@@ -1,6 +1,9 @@
 doctype html
 html(lang="en")
+    - const idString = `Room ${info.roomShort} / Wall ${info.wall} / Shelf ${info.shelf} / Book ${info.book} / Page ${info.page}`
+
     include includes/head.pug
+    +seo(`${idString} — Browse the Library`)
 
     - if (prevPage !== null)
         link(rel="prefetch", href=`/ref/${prevPage}`)
@@ -12,8 +15,8 @@ html(lang="en")
 
         main
             div.PageInfo
-                pre Room #{info.roomShort} / Wall #{info.wall} / Shelf #{info.shelf} / Book #{info.book} / Page #{info.page}
-                a(href=`/fullref/${info.uid}.${info.wall}.${info.shelf}.${info.book}.${info.page}`, target="_blank") Full reference
+                pre=idString
+                a.nobreak(href=`/fullref/${info.uid}.${info.wall}.${info.shelf}.${info.book}.${info.page}`, target="_blank") Full reference
 
             div.PageContentWrapper
                 div.PageContent
