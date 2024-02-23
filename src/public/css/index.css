@@ -147,6 +147,7 @@ footer a {
   font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.2;
+  z-index: 1;
 }
 
 .PageContent .Lines span {
@@ -157,6 +158,8 @@ footer a {
   font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.2;
+  position: relative;
+  overflow: hidden;
 }
 
 .PageContent strong {
@@ -170,6 +173,14 @@ footer a {
   margin-top: 20px;
 }
 
+.PageNavigation a {
+  width: 80px;
+}
+
+.PageNavigation a:last-child {
+  text-align: right;
+}
+
 .PageNavigation .PageSelector {
   display: flex;
   align-items: center;
@@ -179,6 +190,26 @@ footer a {
   background-color: var(--colour-bg);
   margin-left: 5px;
   font-family: var(--font-mono);
+  border-radius: 2px;
+}
+
+.PageFooter {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.PageFooter button {
+  appearance: none;
+  width: 100%;
+  padding: 5px 10px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  border: 1px solid grey;
+  border-radius: 2px;
+  background-color: antiquewhite;
+  color: var(--colour-fg);
+  cursor: pointer;
 }
 
 .SearchForm textarea,
@@ -225,10 +256,13 @@ footer a {
 }
 
 .SearchForm button[disabled],
-.BrowseForm button[disabled] {
+.BrowseForm button[disabled],
+.PageFooter button[disabled] {
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+
 
 .InfoBox {
   border: 1px solid var(--colour-border);
@@ -315,4 +349,25 @@ footer a {
   background-color: rgba(0, 0, 0, 0.075);
   padding: 0 3px;
   border-radius: 2px;
+}
+
+@keyframes highlight {
+  from {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.Highlight {
+  position: absolute;
+  height: calc(14px * 1.2);
+  background-color: rgba(255, 0, 0, 0.15);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 2px;
+  opacity: 0;
+  animation: highlight 200ms forwards;
 }

@@ -94,7 +94,7 @@ export const getRandomCharsBookContent = (content: string) => {
 };
 
 export const getRandomWordsBookContent = (content: string) => {
-  const popularWords = words.getMostPopular(3000) as string[];
+  const popularWords = words.getMostPopular(5000) as string[];
 
   const randomStartPosition =
     Math.floor(
