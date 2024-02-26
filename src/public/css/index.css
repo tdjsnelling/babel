@@ -27,6 +27,7 @@ body {
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: none;
+  text-size-adjust: none;
   text-rendering: optimizeLegibility;
 }
 
@@ -135,6 +136,7 @@ footer a {
 .PageContent {
   display: grid;
   grid-template-columns: 26px 672px;
+  overflow-x: auto;
 }
 
 .PageContent .Lines {
@@ -187,10 +189,17 @@ footer a {
 }
 
 .PageNavigation .PageSelector select {
+  appearance: none;
+  color: var(--colour-fg);
   background-color: var(--colour-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' style='fill: grey;transform: ;msFilter:;'%3E%3Cpath d='M16.293 9.293 12 13.586 7.707 9.293l-1.414 1.414L12 16.414l5.707-5.707z'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 100% 50%;
   margin-left: 5px;
   font-family: var(--font-mono);
+  border: 1px solid grey;
   border-radius: 2px;
+  padding: 2px 16px 2px 5px;
 }
 
 .PageFooter {

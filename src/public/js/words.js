@@ -47,6 +47,9 @@ window.highlightWords = async () => {
     }
   }
 
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const rowHeight = 14 * (isSafari ? 1.145 : 1.2);
+
   for (const i in params) {
     const [index, word, fullMatch] = params[i];
 
@@ -56,8 +59,6 @@ window.highlightWords = async () => {
 
     const highlight = getHighlightPos(index + startingSpaces, word.length);
     const [startRow, startCol, endRow, endCol] = highlight.split(":");
-
-    const rowHeight = 14 * 1.2;
 
     const highlightEl = document.createElement("div");
     highlightEl.dataset.word = word;
