@@ -3,11 +3,11 @@ import Router from "@koa/router";
 import Pug from "koa-pug";
 import serve from "koa-static";
 import bodyParser from "koa-bodyparser";
-import mongoose from "mongoose";
-import { v4 as uuid, validate } from "uuid";
 import dotenv from "dotenv";
 import path from "path";
 import { init as gmp_init } from "gmp-wasm";
+import { createHash } from "crypto";
+import Redis from "ioredis";
 import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants";
 import {
   initialiseNumbers,
@@ -21,30 +21,8 @@ import {
   getRandomCharsBookContent,
   getRandomWordsBookContent,
 } from "./search";
-import Bookmark from "./schema/bookmark";
 
 dotenv.config();
-
-const getBookmark = async (roomOrUid: string) => {
-  const isUUID = validate(roomOrUid);
-  if (isUUID) {
-    return Bookmark.findOne({ uid: roomOrUid });
-  } else {
-    let room = roomOrUid;
-    if (room.length > 1 && room.startsWith("0")) {
-      room = room.replace(/^0+/, "");
-    }
-    const bookmark = await Bookmark.findOne({ room });
-    if (bookmark) {
-      return bookmark;
-    } else {
-      const uid = uuid();
-      const bookmark = new Bookmark({ uid, room });
-      await bookmark.save();
-      return bookmark;
-    }
-  }
-};
 
 const checkBounds = (
   wall: number,
@@ -65,25 +43,8 @@ const checkBounds = (
     throw new Error(`Page must be between 1 and ${PAGES}. Got: ${page}`);
 };
 
-const connectToDatabase = async () => {
-  try {
-    console.log("connecting to database");
-    mongoose.connection.once("open", async () => {
-      console.log("connected to database successfully");
-    });
-    mongoose.connection.once("disconnected", async () => {
-      console.log("lost connection to database");
-      setTimeout(connectToDatabase, 5000);
-    });
-    await mongoose.connect(process.env.MONGO_URL as string);
-  } catch (e: any) {
-    console.error(`could not connect to database: ${e.message}`);
-    setTimeout(connectToDatabase, 5000);
-  }
-};
-
 (async () => {
-  await connectToDatabase();
+  const redis = new Redis(process.env.REDIS_URL as string);
 
   const app = new Koa();
   const staticRouter = new Router();
@@ -93,6 +54,30 @@ const connectToDatabase = async () => {
     viewPath: path.resolve(path.resolve(), "src/views"),
     app,
   });
+
+  const getBookmark = async (
+    roomOrHash: string
+  ): Promise<{ hash: string; room: string | null }> => {
+    const isHash = roomOrHash.startsWith("@");
+    if (isHash) {
+      return { hash: roomOrHash, room: await redis.get(roomOrHash) };
+    } else {
+      let room = roomOrHash;
+      if (room.length > 1 && room.startsWith("0")) {
+        room = room.replace(/^0+/, "");
+      }
+
+      const hash = "@" + createHash("sha256").update(room).digest("hex");
+
+      const bookmark = await redis.get(hash);
+
+      if (!bookmark) {
+        await redis.set(hash, room);
+      }
+
+      return { hash, room };
+    }
+  };
 
   app.use(async (ctx, next) => {
     ctx.set("Cache-Control", "public, max-age=15552000");
@@ -126,7 +111,7 @@ const connectToDatabase = async () => {
   });
 
   staticRouter.get("/", async (ctx) => {
-    const bookmarkCount = await Bookmark.estimatedDocumentCount();
+    const bookmarkCount = (await redis.keys("@*")).length;
     await ctx.render("index", { bookmarkCount });
   });
 
@@ -159,20 +144,20 @@ const connectToDatabase = async () => {
       return;
     }
 
-    const bookmark = await getBookmark(roomOrUid);
-    if (!bookmark) {
-      throw new Error("That bookmark does not exist");
-    }
-
-    if (bookmark.uid !== roomOrUid) {
-      ctx.status = 302;
-      ctx.redirect(
-        `/ref/${[bookmark.uid, idWall, idShelf, idBook, idPage].join(".")}`
-      );
-      return;
-    }
-
     try {
+      const bookmark = await getBookmark(roomOrUid);
+      if (!bookmark.room) {
+        throw new Error("That bookmark does not exist");
+      }
+
+      if (bookmark.hash !== roomOrUid) {
+        ctx.status = 302;
+        ctx.redirect(
+          `/ref/${[bookmark.hash, idWall, idShelf, idBook, idPage].join(".")}`
+        );
+        return;
+      }
+
       const { binding } = await gmp_init();
       const { C, N } = await initialiseNumbers(binding);
       const {
@@ -208,7 +193,7 @@ const connectToDatabase = async () => {
       await ctx.render("page", {
         info: {
           identifier,
-          uid: bookmark.uid,
+          uid: bookmark.hash,
           roomShort,
           room,
           wall,
@@ -217,8 +202,8 @@ const connectToDatabase = async () => {
           page,
         },
         lines: content.match(new RegExp(`.{${CHARS}}`, "g")),
-        prevPage: [prevBookmark.uid, ...prevRest].join("."),
-        nextPage: [nextBookmark.uid, ...nextRest].join("."),
+        prevPage: [prevBookmark.hash, ...prevRest].join("."),
+        nextPage: [nextBookmark.hash, ...nextRest].join("."),
       });
     } catch (e: any) {
       ctx.status = 500;
@@ -248,10 +233,10 @@ const connectToDatabase = async () => {
       throw new Error("That bookmark does not exist");
     }
 
-    if (bookmark.uid !== roomOrUid) {
+    if (bookmark.hash !== roomOrUid) {
       ctx.status = 302;
       ctx.redirect(
-        `/fullref/${[bookmark.uid, idWall, idShelf, idBook, idPage].join(".")}`
+        `/fullref/${[bookmark.hash, idWall, idShelf, idBook, idPage].join(".")}`
       );
       return;
     }
@@ -288,7 +273,7 @@ const connectToDatabase = async () => {
       if (!bookmark) {
         throw new Error("That bookmark does not exist");
       }
-      ctx.body = [bookmark.uid, ...rest].join(".");
+      ctx.body = [bookmark.hash, ...rest].join(".");
     } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;
@@ -346,7 +331,7 @@ const connectToDatabase = async () => {
         throw new Error("That bookmark does not exist");
       }
 
-      ctx.body = { ref: [bookmark.uid, ...rest].join("."), highlight };
+      ctx.body = { ref: [bookmark.hash, ...rest].join("."), highlight };
     } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;
@@ -366,7 +351,7 @@ const connectToDatabase = async () => {
       }
 
       ctx.status = 302;
-      ctx.redirect(`/ref/${[bookmark.uid, ...rest].join(".")}`);
+      ctx.redirect(`/ref/${[bookmark.hash, ...rest].join(".")}`);
     } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;
