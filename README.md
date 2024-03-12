@@ -1,10 +1,10 @@
 # babel
 
-A functioning, complete, true-to-scale re-creation of the Library of Babel.
+A functional, complete, true-to-scale re-creation of the [Library of Babel](https://en.wikipedia.org/wiki/The_Library_of_Babel) [[.pdf](https://libraryofbabel.app/pdf/Borges-The-Library-of-Babel.pdf)].
 
 ### What is it?
 
-[The Library of Babel](https://libraryofbabel.app/pdf/Borges-The-Library-of-Babel.pdf) is a short story written by [Jorge Luis Borges](https://en.wikipedia.org/wiki/Jorge_Luis_Borges).
+The Library of Babel is a short story written by [Jorge Luis Borges](https://en.wikipedia.org/wiki/Jorge_Luis_Borges).
 
 It describes a library made up of an “indefinite, perhaps infinite” number hexagonal of rooms, each lined on four sides by a bookshelf of five shelves, each self containing thirty-two books. Each book is four hundred and ten pages of forty lines, each line of eighty characters.
 
@@ -58,8 +58,6 @@ You can play with a live instance at [libraryofbabel.app](https://libraryofbabel
 
 Alternatively, you can clone this repo and run it yourself.
 
-You will need a `.env` file containing `MONGO_URL=...`.
-
 To build and start on `http://localhost:3000`:
 
 ```
@@ -71,12 +69,6 @@ $ yarn start
 You can then look up a page at the `/ref/...` endpoint, e.g. `/ref/1.1.1.1.1`.
 
 You can search for a page containing some content at `/search`, navigate to a specific page at `/browse`, and you can visit a random page at `/random`.
-
-To speed up database operations, it is recommended to create an index with:
-
-```
-mongosh> db.bookmarks.createIndex({ "room": 1 })
-```
 
 ### How does it work?
 
@@ -135,13 +127,13 @@ When a specific page is accessed, the entire book is generated and split into 41
 
 ### Why is a database required if books are not stored on disk?
 
-The alphanumeric room identifiers get very long, up to around 1,000,000 characters. This makes them too long to use in URLs, so the MongoDB database is responsible for holding 'bookmarks' to each room.
+The alphanumeric room identifiers get very long, up to around 1,000,000 characters. This makes them too long to use in URLs, so the database is responsible for holding 'bookmarks' to each room.
 
-When a room is visited for the first time, a random UUID is generated and stored in the database alongside the actual room identifier. This UUID is used in the URL in place of the real room identifier.
+When a room is visited for the first time, it’s SHA-256 hash is calculated and stored in a LevelDB database alongside the actual room identifier. This hash is used in the URL in place of the real room identifier.
 
-#### But are there not way more unique room identifiers than unique UUIDs?
+#### But are there not way more unique room identifiers than unique hashes?
 
-Correct. In theory, there will eventually be no more unique UUIDs available, and old bookmarks will start to be overwritten as new rooms are discovered. In reality, this is almost guaranteed never to happen. 
+Correct. In theory, when enough unique rooms are discovered hashes will start to collide, and old bookmarks will start to be overwritten as new rooms are discovered. In reality this very unlikely to happen, as this many rooms will not be visited. 
 
 ### Prior art
 

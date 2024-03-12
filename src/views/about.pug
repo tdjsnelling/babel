@@ -72,13 +72,13 @@ html(lang="en")
             p Well spotted. On this website, the room identifiers are represented as
                 |
                 |
-                a(href="https://en.wikipedia.org/wiki/Universally_unique_identifier", target="_blank") UUIDs
+                a(href="https://en.wikipedia.org/wiki/SHA-2", target="_blank") SHA-256 hashes
                 | . The
                 |
                 em actual
                 |
-                | room identifiers get incredibly long, up to roughly a million characters. This makes them much too long to be used in URLs, so instead a ‘bookmark’ is created and stored for the room in the form of a UUID when it is first visited. This UUID is used in place of the room identifier in the page URL.
-            p However, there are orders of magnitude more possible room identifiers than there are possible UUIDs. In theory, eventually when all UUIDs are used up then they will start to be overwritten as new, undiscovered rooms are accessed for the first time. In reality, this limit will never be reached.
+                | room identifiers get incredibly long, up to roughly a million characters. This makes them much too long to be used in URLs, so instead a ‘bookmark’ is created and stored for the room in the form of a hash when it is first visited. This hash is used in place of the room identifier in the page URL.
+            p However, there are orders of magnitude more possible room identifiers than there are possible hashes. In theory, eventually when enough rooms are discovered there will be collisions (2 inputs map to the same output hash) and they will start to be overwritten as new, undiscovered rooms are accessed for the first time. In reality, this limit will never be reached.
 
 
             h2 How do I know it’s not fake? Is it just creating pages with my search terms and saving them so I can see them again later?
