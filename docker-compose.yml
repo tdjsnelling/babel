@@ -4,7 +4,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - MONGO_URL=mongodb://mongodb:27017/babel
+      - REDIS_URL=redis://redis:6379
     healthcheck:
       test: curl --fail http://localhost:3000 || exit 1
       interval: 60s
@@ -12,10 +12,10 @@ services:
       start_period: 30s
       timeout: 1s
     restart: always
-  mongodb:
-    image: "mongo"
+  redis:
+    image: "redis:7"
     ports:
-      - "127.0.0.1:27017:27017"
+      - "127.0.0.1:6379:6379"
     volumes:
-      - "./data:/data/db"
+      - "./data:/data"
     restart: always

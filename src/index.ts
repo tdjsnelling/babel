@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { init as gmp_init } from "gmp-wasm";
 import { createHash } from "crypto";
-import Redis from "ioredis";
+import { Level } from "level";
 import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants";
 import {
   initialiseNumbers,
@@ -44,7 +44,7 @@ const checkBounds = (
 };
 
 (async () => {
-  const redis = new Redis(process.env.REDIS_URL as string);
+  const db = new Level("./leveldb");
 
   const app = new Koa();
   const staticRouter = new Router();
@@ -60,7 +60,7 @@ const checkBounds = (
   ): Promise<{ hash: string; room: string | null }> => {
     const isHash = roomOrHash.startsWith("@");
     if (isHash) {
-      return { hash: roomOrHash, room: await redis.get(roomOrHash) };
+      return { hash: roomOrHash, room: await db.get(roomOrHash) };
     } else {
       let room = roomOrHash;
       if (room.length > 1 && room.startsWith("0")) {
@@ -69,10 +69,10 @@ const checkBounds = (
 
       const hash = "@" + createHash("sha256").update(room).digest("hex");
 
-      const bookmark = await redis.get(hash);
-
-      if (!bookmark) {
-        await redis.set(hash, room);
+      try {
+        room = await db.get(hash);
+      } catch (e) {
+        await db.put(hash, room);
       }
 
       return { hash, room };
@@ -111,8 +111,8 @@ const checkBounds = (
   });
 
   staticRouter.get("/", async (ctx) => {
-    const bookmarkCount = (await redis.keys("@*")).length;
-    await ctx.render("index", { bookmarkCount });
+    //const bookmarkCount = (await redis.keys("@*")).length;
+    await ctx.render("index", { bookmarkCount: 0 });
   });
 
   staticRouter.get("/about", async (ctx) => {
