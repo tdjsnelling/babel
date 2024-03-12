@@ -68,19 +68,6 @@ html(lang="en")
                 a(href="https://github.com/tdjsnelling/babel", target="_blank") GitHub repository
                 | .
 
-            h2 The page URLs seem quite short. How can these possibly map to so many unique books?
-            p Well spotted. On this website, the room identifiers are represented as
-                |
-                |
-                a(href="https://en.wikipedia.org/wiki/SHA-2", target="_blank") SHA-256 hashes
-                | . The
-                |
-                em actual
-                |
-                | room identifiers get incredibly long, up to roughly a million characters. This makes them much too long to be used in URLs, so instead a ‘bookmark’ is created and stored for the room in the form of a hash when it is first visited. This hash is used in place of the room identifier in the page URL.
-            p However, there are orders of magnitude more possible room identifiers than there are possible hashes. In theory, eventually when enough rooms are discovered there will be collisions (2 inputs map to the same output hash) and they will start to be overwritten as new, undiscovered rooms are accessed for the first time. In reality, this limit will never be reached.
-
-
             h2 How do I know it’s not fake? Is it just creating pages with my search terms and saving them so I can see them again later?
             p It is easy to assume that this website just takes whatever text you search for, inserts it into a random page, and saves that page on disk so that you can find it again at a later date. Similarly with pages of gibberish, what’s to say they aren’t just generated randomly when you request them and saved for later?
             p Building a Library of Babel this way would require unobtainable amounts of storage. A single book’s content takes up 1,312,000 bytes (1.31 MB), with a single byte per ASCII character. 1,312,000 bytes multiplied by
@@ -98,6 +85,28 @@ html(lang="en")
                 | TB — an infeasible amount of data to store, to say the very least.
             p Thus to build a virtual Library of Babel, we have to use a method that doesn’t require any storage. Books are generated on the fly based on their numerical index, and the same index will continue to generate the same book forever, unless the algorithm is changed.
 
+
+            h2 The page URLs seem quite short. How can these possibly map to so many unique books?
+            p Well spotted. On this website, the room identifiers are represented as
+                |
+                |
+                a(href="https://en.wikipedia.org/wiki/SHA-2", target="_blank") SHA-256 hashes
+                | . The
+                |
+                em actual
+                |
+                | room identifiers get incredibly long, up to roughly a million characters. This makes them much too long to be used in URLs, so instead a ‘bookmark’ is created and stored for the room in the form of a hash when it is first visited. This hash is used in place of the room identifier in the page URL.
+            p However, there are orders of magnitude more possible room identifiers than there are possible hashes. In theory, eventually when enough rooms are discovered there will be collisions (2 inputs map to the same output hash) and they will start to be overwritten as new, undiscovered rooms are accessed for the first time. In reality, this limit will never be reached.
+
+            h2 What makes this version of the Library different?
+            p As far as I am aware, this is the only implementation of the Library that contains every unique book, rather than just every unique page. This results in a much larger library, and means that you can search for content longer than a single page.
+            p This comes as a result of re-writing the calculations to use
+                |
+                |
+                a(href="https://gmplib.org/", target="_blank") GMP
+                | , a powerful multiple precision arithmetic library for C/C++. Porting the original pure-JS core logic to use GMP allows for much faster and more efficient calculations, making working with the very large numbers required possible.
+
+
             h2 Where can I learn more about the Library of Babel?
             p If you haven’t already read
                 |
@@ -109,16 +118,5 @@ html(lang="en")
                 a(href="https://libraryofbabel.info", target="_blank") libraryofbabel.info
                 |
                 | also contains lots of supplemental information and theory, as well as another (smaller) implementation of the library itself.
-
-            h2 What makes this version of the Library different?
-            p As far as I am aware, this is the only implementation of the Library that contains every unique book, rather than just every unique page. This results in a much larger library, and means that you can search for content longer than a single page.
-            p This comes as a result of re-writing the calculations to use
-                |
-                |
-                a(href="https://gmplib.org/", target="_blank") GMP
-                | , a powerful multiple precision arithmetic library for C/C++. Porting the original pure-JS core logic to use GMP allows for much faster and more efficient calculations, making working with the very large numbers required possible.
-
-            h2 Where do the images on this site come from?
-            p They are all generated by Midjourney AI.
 
         include includes/footer.pug

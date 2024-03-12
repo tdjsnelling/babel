@@ -3,7 +3,7 @@
   --colour-fg: #111;
   --colour-grey: #545454;
   --colour-light-grey: #888;
-  --colour-border: #ddd;
+  --colour-border: #e3dad0;
   --font-mono: "Source Code Pro", monospace;
   --font-serif: "Lora", serif;
 }
@@ -79,6 +79,12 @@ footer {
 footer p,
 footer a {
   color: var(--colour-grey);
+}
+
+footer .epigraph {
+  margin-top: 5px;
+  text-align: right;
+  color: var(--colour-light-grey);
 }
 
 .BodyStyle {
@@ -270,8 +276,6 @@ footer a {
   cursor: not-allowed;
   opacity: 0.5;
 }
-
-
 
 .InfoBox {
   border: 1px solid var(--colour-border);
