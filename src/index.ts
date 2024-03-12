@@ -111,8 +111,8 @@ const checkBounds = (
   });
 
   staticRouter.get("/", async (ctx) => {
-    //const bookmarkCount = (await redis.keys("@*")).length;
-    await ctx.render("index", { bookmarkCount: 0 });
+    const bookmarkCount = (await db.keys().all()).length;
+    await ctx.render("index", { bookmarkCount });
   });
 
   staticRouter.get("/about", async (ctx) => {
