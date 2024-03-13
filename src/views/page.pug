@@ -28,6 +28,8 @@ html(lang="en")
 
             div.PageFooter
                 button.Button(onclick="highlightWords()") Highlight English words
+                a.noexternal(href=`/pdf/${info.uid}.${info.wall}.${info.shelf}.${info.book}`, target="_blank")
+                    button.Button Download this book as a PDF
 
             div.PageNavigation
                 - if (prevPage !== null)

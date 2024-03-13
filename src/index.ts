@@ -21,6 +21,7 @@ import {
   getRandomCharsBookContent,
   getRandomWordsBookContent,
 } from "./search";
+import { generatePdf } from "./pdf";
 
 dotenv.config();
 
@@ -58,11 +59,20 @@ const checkBounds = (
   const getBookmark = async (
     roomOrHash: string
   ): Promise<{ hash: string; room: string | null }> => {
+    let room;
+
     const isHash = roomOrHash.startsWith("@");
+
     if (isHash) {
-      return { hash: roomOrHash, room: await db.get(roomOrHash) };
+      try {
+        room = await db.get(roomOrHash);
+      } catch (e) {
+        room = null;
+      }
+      return { hash: roomOrHash, room };
     } else {
-      let room = roomOrHash;
+      room = roomOrHash;
+
       if (room.length > 1 && room.startsWith("0")) {
         room = room.replace(/^0+/, "");
       }
@@ -80,7 +90,7 @@ const checkBounds = (
   };
 
   app.use(async (ctx, next) => {
-    ctx.set("Cache-Control", "public, max-age=15552000");
+    ctx.set("Cache-Control", "public, max-age=86400");
     await next();
   });
 
@@ -103,11 +113,6 @@ const checkBounds = (
     await next();
     const ms = Date.now() - start;
     ctx.set("X-Response-Time", `${ms}ms`);
-  });
-
-  staticRouter.use(async (ctx, next) => {
-    ctx.set("Cache-Control", "public, max-age=86400");
-    await next();
   });
 
   staticRouter.get("/", async (ctx) => {
@@ -174,7 +179,8 @@ const checkBounds = (
         binding,
         [bookmark.room, idWall, idShelf, idBook, idPage].join("."),
         C,
-        N
+        N,
+        false
       );
       await binding.reset();
 
@@ -228,6 +234,41 @@ const checkBounds = (
       return;
     }
 
+    try {
+      const bookmark = await getBookmark(roomOrUid);
+      if (!bookmark) {
+        throw new Error("That bookmark does not exist");
+      }
+
+      if (bookmark.hash !== roomOrUid) {
+        ctx.status = 302;
+        ctx.redirect(
+          `/fullref/${[bookmark.hash, idWall, idShelf, idBook, idPage].join(
+            "."
+          )}`
+        );
+        return;
+      }
+
+      ctx.body = `${bookmark.room}.${idWall}.${idShelf}.${idBook}.${idPage}`;
+    } catch (e: any) {
+      ctx.status = 500;
+      ctx.body = e.message;
+    }
+  });
+
+  staticRouter.get("/pdf/:identifier", async (ctx) => {
+    const { identifier } = ctx.params;
+    const [roomOrUid, idWall, idShelf, idBook] = identifier.split(".");
+
+    try {
+      checkBounds(Number(idWall), Number(idShelf), Number(idBook), Number(1));
+    } catch (e: any) {
+      ctx.status = 400;
+      ctx.body = e.message;
+      return;
+    }
+
     const bookmark = await getBookmark(roomOrUid);
     if (!bookmark) {
       throw new Error("That bookmark does not exist");
@@ -236,7 +277,7 @@ const checkBounds = (
     if (bookmark.hash !== roomOrUid) {
       ctx.status = 302;
       ctx.redirect(
-        `/fullref/${[bookmark.hash, idWall, idShelf, idBook, idPage].join(".")}`
+        `/pdf/${[bookmark.hash, idWall, idShelf, idBook].join(".")}`
       );
       return;
     }
@@ -244,15 +285,24 @@ const checkBounds = (
     try {
       const { binding } = await gmp_init();
       const { C, N } = await initialiseNumbers(binding);
-      const { room, wall, shelf, book, page } = await generateContent(
+      const { content, roomShort, wall, shelf, book } = await generateContent(
         binding,
-        [bookmark.room, idWall, idShelf, idBook, idPage].join("."),
+        [bookmark.room, idWall, idShelf, idBook].join("."),
         C,
-        N
+        N,
+        true
       );
       await binding.reset();
 
-      ctx.body = `${room}.${wall}.${shelf}.${book}.${page}`;
+      ctx.set("Content-Type", "application/pdf");
+      ctx.body = await generatePdf(
+        content,
+        roomShort,
+        bookmark.hash,
+        wall,
+        shelf,
+        book
+      );
     } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;

@@ -36,7 +36,7 @@ a {
   font-weight: bold;
 }
 
-a[target="_blank"]::after {
+a[target="_blank"]:not(.noexternal)::after {
   content: "";
   display: inline-block;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill:currentColor;"><path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"></path></svg>');
@@ -209,9 +209,10 @@ footer .epigraph {
 }
 
 .PageFooter {
-  display: flex;
-  justify-content: center;
   margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 5px;
 }
 
 .PageFooter button {

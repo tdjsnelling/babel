@@ -125,22 +125,34 @@ async function getIdentifierFromSequentialContentNumber(
   Given a page identifier, determine the book index of that identifier and then
   calculate the resulting book contents via modular multiplication.
 */
-export async function generateContent(
-  binding: GMPFunctions,
-  identifier: string,
-  C: mpz_ptr,
-  N: mpz_ptr
-): Promise<{
+type BookResponse = {
   content: string;
   roomShort: string;
   room: string;
   wall: string;
   shelf: string;
   book: string;
+};
+
+type PageResponse = BookResponse & {
   page: string;
   nextIdentifier: string;
   prevIdentifier: string;
-}> {
+};
+
+type ContentResponse<T> = T extends true
+  ? BookResponse
+  : T extends false
+  ? PageResponse
+  : never;
+
+export async function generateContent<T extends boolean>(
+  binding: GMPFunctions,
+  identifier: string,
+  C: mpz_ptr,
+  N: mpz_ptr,
+  wholeBook: T
+): Promise<ContentResponse<T>> {
   const { seqNumber, page } = await getSequentialContentNumberFromIdentifier(
     binding,
     identifier
@@ -160,8 +172,9 @@ export async function generateContent(
   }
 
   let content = "";
-  const start = (page - 1) * PAGE_LENGTH;
-  for (let i = start; i < start + PAGE_LENGTH; i++) {
+  const start = wholeBook ? 0 : (page - 1) * PAGE_LENGTH;
+  const end = wholeBook ? BOOK_LENGTH : start + PAGE_LENGTH;
+  for (let i = start; i < end; i++) {
     const char = hash[i];
     content += ALPHA[parseInt(char, ALPHA.length)];
   }
@@ -175,6 +188,17 @@ export async function generateContent(
     roomShort = `${firstEight}...${lastEight}`;
   } else {
     roomShort = room;
+  }
+
+  if (wholeBook) {
+    return {
+      content,
+      roomShort,
+      room,
+      wall,
+      shelf,
+      book,
+    } as ContentResponse<T>;
   }
 
   const nextSeqNumber = binding.mpz_t();
@@ -223,7 +247,7 @@ export async function generateContent(
     page: page.toString(),
     nextIdentifier,
     prevIdentifier,
-  };
+  } as ContentResponse<T>;
 }
 
 /*
