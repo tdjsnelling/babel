@@ -36,6 +36,20 @@ type FormidableRequest = Request & {
   };
 };
 
+const memoCache: { [key: string]: { result?: any; expiry?: Date } } = {};
+const memo = async (fn: () => any, validForMs: number) => {
+  let memoResult = memoCache[fn.name];
+  if (!memoResult || !memoResult.expiry || memoResult.expiry < new Date()) {
+    memoResult = {};
+    const result = await fn();
+    memoResult.result = result;
+    memoResult.expiry = new Date(Date.now() + validForMs);
+    memoCache[fn.name] = memoResult;
+    return result;
+  }
+  return memoResult.result;
+};
+
 const checkBounds = (
   wall: number,
   shelf: number,
@@ -57,6 +71,8 @@ const checkBounds = (
 
 (async () => {
   const db = new Level("./leveldb");
+
+  const countBookmarks = async () => (await db.keys().all()).length;
 
   const app = new Koa();
   const staticRouter = new Router();
@@ -134,7 +150,7 @@ const checkBounds = (
   });
 
   staticRouter.get("/", async (ctx) => {
-    const bookmarkCount = (await db.keys().all()).length;
+    const bookmarkCount = await memo(countBookmarks, 1000 * 60 * 60);
     await ctx.render("index", { bookmarkCount });
   });
 
