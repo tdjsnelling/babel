@@ -107,6 +107,43 @@ footer .epigraph {
   padding-left: 18px;
 }
 
+.ProseStyle {
+  max-width: 58ch;
+  margin: 0 auto;
+  hyphens: auto;
+}
+
+.ProseStyle h2 {
+  font-size: 16px;
+  text-align: center;
+}
+
+.ProseStyle h3 {
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.ProseStyle p {
+  text-align: justify;
+  text-indent: 1em;
+}
+
+.ProseStyle .Footnotes {
+  text-indent: 0;
+  border-top: 1px solid var(--colour-border);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.ProseStyle .Footnotes ol {
+  margin-left: 1em;
+}
+
+.ProseStyle .Footnotes ol li + li {
+  margin-top: 5px;
+}
+
 .PageInfo {
   display: flex;
   align-items: flex-start;
@@ -131,6 +168,16 @@ footer .epigraph {
   padding: 10px;
   margin-top: 10px;
   background-color: rgba(0, 0, 0, 0.025);
+}
+
+.PageActions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 5px;
+  border: 1px solid var(--colour-border);
+  border-radius: 2px;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
 .PageContentWrapper {
@@ -208,14 +255,7 @@ footer .epigraph {
   padding: 2px 16px 2px 5px;
 }
 
-.PageFooter {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 5px;
-}
-
-.PageFooter button {
+.PageActions button {
   appearance: none;
   width: 100%;
   padding: 5px 10px;
@@ -243,10 +283,6 @@ footer .epigraph {
   margin-bottom: 10px;
 }
 
-.SearchForm .ModeSelection {
-  margin-bottom: 10px;
-}
-
 .SearchForm .ModeSelection label {
   margin-right: 10px;
   display: inline-flex;
@@ -269,6 +305,7 @@ footer .epigraph {
   background-color: antiquewhite;
   color: var(--colour-fg);
   cursor: pointer;
+  margin-top: 10px;
 }
 
 .SearchForm button[disabled],
@@ -303,10 +340,10 @@ footer .epigraph {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-gap: 10px;
-  margin-bottom: 10px;
 }
 
-.BrowseForm .Numbers input {
+.BrowseForm .Numbers input,
+.BrowseForm input[type="file"]{
   appearance: none;
   display: block;
   width: 100%;
@@ -315,6 +352,11 @@ footer .epigraph {
   font-size: 14px;
   border: 1px solid grey;
   border-radius: 2px;
+}
+
+.BrowseForm input[type="file"] {
+  background-color: white;
+  cursor: pointer;
 }
 
 .Librarian {
@@ -356,6 +398,7 @@ footer .epigraph {
   vertical-align: top;
   display: inline-block;
   margin-top: -2px;
+  text-indent: 0;
 }
 
 .code {
@@ -384,4 +427,30 @@ footer .epigraph {
   border-radius: 2px;
   opacity: 0;
   animation: highlight 200ms forwards;
+}
+
+.Divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 30px auto;
+}
+
+.Divider > p {
+  display: inline-block;
+  background-color: var(--colour-bg);
+  color: var(--colour-light-grey);
+  padding: 0 10px;
+}
+
+.Divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background-color: var(--colour-border);
+  z-index: -1;
 }

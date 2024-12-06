@@ -1,10 +1,13 @@
-import Koa from "koa";
+import Koa, { Request } from "koa";
 import Router from "@koa/router";
 import Pug from "koa-pug";
 import serve from "koa-static";
 import bodyParser from "koa-bodyparser";
+// @ts-ignore
+import formidable from "koa2-formidable";
 import dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
 import { init as gmp_init } from "gmp-wasm";
 import { createHash } from "crypto";
 import { Level } from "level";
@@ -24,6 +27,14 @@ import {
 import { generatePdf } from "./pdf";
 
 dotenv.config();
+
+type FormidableRequest = Request & {
+  files: {
+    [key: string]: {
+      path: string;
+    };
+  };
+};
 
 const checkBounds = (
   wall: number,
@@ -97,6 +108,13 @@ const checkBounds = (
   app.use(serve("src/public"));
 
   app.use(
+    formidable({
+      maxFiles: 1,
+      maxFileSize: 5 * 1024 * 1024,
+    })
+  );
+
+  app.use(
     bodyParser({
       jsonLimit: "3mb",
     })
@@ -130,6 +148,10 @@ const checkBounds = (
 
   staticRouter.get("/search", async (ctx) => {
     await ctx.render("search");
+  });
+
+  staticRouter.get("/story", async (ctx) => {
+    await ctx.render("story");
   });
 
   staticRouter.get("/ref/:identifier", async (ctx) => {
@@ -309,6 +331,71 @@ const checkBounds = (
     }
   });
 
+  staticRouter.get("/bookmark/:identifier", async (ctx) => {
+    const { identifier } = ctx.params;
+    const [roomOrUid, idWall, idShelf, idBook, idPage] = identifier.split(".");
+
+    try {
+      checkBounds(
+        Number(idWall),
+        Number(idShelf),
+        Number(idBook),
+        Number(idPage)
+      );
+    } catch (e: any) {
+      ctx.status = 400;
+      ctx.body = e.message;
+      return;
+    }
+
+    const bookmark = await getBookmark(roomOrUid);
+    if (!bookmark.room) {
+      throw new Error("That bookmark does not exist");
+    }
+
+    if (bookmark.hash !== roomOrUid) {
+      ctx.status = 302;
+      ctx.redirect(
+        `/bookmark/${[bookmark.hash, idWall, idShelf, idBook, idPage].join(
+          "."
+        )}`
+      );
+      return;
+    }
+
+    try {
+      /*
+        | page | page | book | shelf | wall | room ... |
+      */
+      const buf = Buffer.from([
+        Math.min(255, Number(idPage)),
+        Math.max(0, Number(idPage) - 255),
+        Number(idBook),
+        Number(idShelf),
+        Number(idWall),
+      ]);
+
+      let roomBuf = Buffer.alloc(0);
+
+      const { calculate } = await gmp_init();
+      // @ts-ignore
+      calculate((g) => {
+        roomBuf = Buffer.from(
+          g.Integer(bookmark.room as string, 32).toBuffer()
+        );
+      });
+
+      ctx.set(
+        "Content-Disposition",
+        `attachment; filename="${identifier}.babel"`
+      );
+      ctx.body = Buffer.concat([buf, roomBuf]);
+    } catch (e: any) {
+      ctx.status = 500;
+      ctx.body = e.message;
+    }
+  });
+
   dynamicRouter.use(async (ctx, next) => {
     ctx.set("Cache-Control", "no-cache, no-store");
     await next();
@@ -402,6 +489,42 @@ const checkBounds = (
 
       ctx.status = 302;
       ctx.redirect(`/ref/${[bookmark.hash, ...rest].join(".")}`);
+    } catch (e: any) {
+      ctx.status = 500;
+      ctx.body = e.message;
+    }
+  });
+
+  dynamicRouter.post("/open-bookmark", async (ctx) => {
+    if (!(ctx.request as FormidableRequest).files?.bookmark) {
+      ctx.status = 400;
+      ctx.body = "Missing `bookmark` file";
+      return;
+    }
+
+    try {
+      const buf = fs.readFileSync(
+        (ctx.request as FormidableRequest).files.bookmark.path
+      );
+      const [page1, page2, book, shelf, wall, ...room] = buf;
+      const page = page1 + page2;
+
+      let roomStr;
+
+      const { calculate } = await gmp_init();
+      // @ts-ignore
+      calculate((g) => {
+        roomStr = g.Integer(new Uint8Array(room), 32).toString(32);
+      });
+
+      if (!roomStr) {
+        throw new Error("Could not parse room from bookmark");
+      }
+
+      const bookmark = await getBookmark(roomStr);
+
+      ctx.body = [bookmark.hash, wall, shelf, book, page].join(".");
+      ctx.status = 200;
     } catch (e: any) {
       ctx.status = 500;
       ctx.body = e.message;

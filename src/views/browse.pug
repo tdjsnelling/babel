@@ -9,7 +9,7 @@ html(lang="en")
         main
             img.Banner(src="/image/shelves.png", alt="A pencil drawing of a man in a hooded robe standing next to large shelves of books")
 
-            form.BrowseForm
+            form#browse.BrowseForm
                 label
                     p Room
                     textarea(name="room", rows=5, required=true, placeholder="Enter an alphanumeric room identifier made up of the characters 0-9 and a-v.")
@@ -45,6 +45,20 @@ html(lang="en")
 
                 button Go
 
+            div.Divider
+                p OR
+
+            form#bookmark.BrowseForm
+                label
+                    p Upload a bookmark file
+                        |
+                        |
+                        span You can download these when viewing a page
+                    input(type="file", name="bookmark", accept=".babel", multiple=false, required=true)
+
+                Button Go
+
         include includes/footer.pug
 
     script(src="/js/handleBrowseForm.js", type="text/javascript")
+    script(src="/js/handleBookmarkForm.js", type="text/javascript")

@@ -1,5 +1,5 @@
-const form = document.querySelector("form");
-const button = document.querySelector("form button");
+const form = document.querySelector("form#browse");
+const button = document.querySelector("form#browse button");
 
 form.onsubmit = async (e) => {
   e.preventDefault();

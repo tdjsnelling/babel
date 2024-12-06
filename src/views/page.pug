@@ -18,6 +18,14 @@ html(lang="en")
                 pre=idString
                 a.nobreak(href=`/fullref/${info.uid}.${info.wall}.${info.shelf}.${info.book}.${info.page}`, target="_blank") Full reference
 
+
+            div.PageActions
+                button.Button(onclick="highlightWords()") Highlight English words
+                a.noexternal(href=`/bookmark/${info.uid}.${info.wall}.${info.shelf}.${info.book}.${info.page}`)
+                    button.Button Download bookmark
+                a.noexternal(href=`/pdf/${info.uid}.${info.wall}.${info.shelf}.${info.book}`, target="_blank")
+                    button.Button Download this book as a PDF
+
             div.PageContentWrapper
                 div.PageContent
                     div.Lines
@@ -25,11 +33,6 @@ html(lang="en")
                             - const i = index + 1
                             span #{i < 10 ? `0${i}` : i}
                     pre #{lines.join('\n')}
-
-            div.PageFooter
-                button.Button(onclick="highlightWords()") Highlight English words
-                a.noexternal(href=`/pdf/${info.uid}.${info.wall}.${info.shelf}.${info.book}`, target="_blank")
-                    button.Button Download this book as a PDF
 
             div.PageNavigation
                 - if (prevPage !== null)
