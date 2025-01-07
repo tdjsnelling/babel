@@ -36,20 +36,6 @@ type FormidableRequest = Request & {
   };
 };
 
-const memoCache: { [key: string]: { result?: any; expiry?: Date } } = {};
-const memo = async (fn: () => any, validForMs: number) => {
-  let memoResult = memoCache[fn.name];
-  if (!memoResult || !memoResult.expiry || memoResult.expiry < new Date()) {
-    memoResult = {};
-    const result = await fn();
-    memoResult.result = result;
-    memoResult.expiry = new Date(Date.now() + validForMs);
-    memoCache[fn.name] = memoResult;
-    return result;
-  }
-  return memoResult.result;
-};
-
 const checkBounds = (
   wall: number,
   shelf: number,
@@ -110,6 +96,16 @@ const checkBounds = (
         room = await db.get(hash);
       } catch (e) {
         await db.put(hash, room);
+
+        let bookmarkCount = 0;
+
+        try {
+          bookmarkCount = Number(await db.get("_bookmark_count"));
+        } catch (e: any) {
+          // key does not exist
+        }
+
+        await db.put("_bookmark_count", `${bookmarkCount + 1}`);
       }
 
       return { hash, room };
@@ -150,7 +146,19 @@ const checkBounds = (
   });
 
   staticRouter.get("/", async (ctx) => {
-    const bookmarkCount = await memo(countBookmarks, 1000 * 60 * 60);
+    let bookmarkCount = 0;
+
+    try {
+      bookmarkCount = Number(await db.get("_bookmark_count"));
+    } catch (e: any) {
+      // key does not exist
+    }
+
+    if (!bookmarkCount) {
+      const _bookmarkCount = await countBookmarks();
+      await db.put("_bookmark_count", `${_bookmarkCount}`);
+    }
+
     await ctx.render("index", { bookmarkCount });
   });
 
