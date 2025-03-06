@@ -1,3 +1,12 @@
+# Patch1
+
+Has now an API endpoint in index.ts which stores a log file in the directory babel-logs you have to create in the main project folder before. The fun is that it's collecting random pages & words with timestamps automatically when time passes. If you are lucky you get some meaningful results.
+
+How to:
+- import the tampermonkey script babel.typescript.highlight.words.js
+- yarn build && yarn start in windows cmd
+- monitor the log file changes in powershell or Notepad++ under View and Monitoring (tail -f)
+
 # babel
 
 A functional, complete, true-to-scale re-creation of the [Library of Babel](https://en.wikipedia.org/wiki/The_Library_of_Babel) [[.pdf](https://libraryofbabel.app/pdf/Borges-The-Library-of-Babel.pdf)].
