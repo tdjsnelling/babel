@@ -5,6 +5,7 @@ Has now an API endpoint in index.ts which stores a log file in the directory bab
 How to:
 - import the tampermonkey script babel.typescript.highlight.words.js
 - yarn build && yarn start in windows cmd
+- open http://localhost:3000/ in browser and click on "random"
 - monitor the log file changes in powershell or Notepad++ under View and Monitoring (tail -f)
 
 # babel
