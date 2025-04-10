@@ -8,6 +8,7 @@ import formidable from "koa2-formidable";
 import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
+import { promises } from "fs";
 import { init as gmp_init } from "gmp-wasm";
 import { createHash } from "crypto";
 import { Level } from "level";
@@ -54,6 +55,27 @@ const checkBounds = (
   if (page < 1 || page > PAGES)
     throw new Error(`Page must be between 1 and ${PAGES}. Got: ${page}`);
 };
+
+function stringifyJsonWithWhitespace(jsonObject: any): string {
+  if (!jsonObject || typeof jsonObject !== 'object') {
+    return ""; // Handle invalid input
+  }
+
+  let resultString = "";
+
+  if (Array.isArray(jsonObject.words)) {
+    resultString += jsonObject.words.join(" ");
+  }
+
+  if (jsonObject.pageRef) {
+    if (resultString.length > 0) {
+      resultString += " ";
+    }
+    resultString += jsonObject.pageRef;
+  }
+
+  return resultString;
+}
 
 (async () => {
   const db = new Level("./leveldb");
@@ -160,6 +182,32 @@ const checkBounds = (
     }
 
     await ctx.render("index", { bookmarkCount });
+  });
+
+  staticRouter.post("/logdownload", async (ctx) => {
+    console.log("Start Write")
+    //console.log(ctx.request.headers['content-type'], ctx.request.body);
+    const whitespaceString = stringifyJsonWithWhitespace(ctx.request.body);
+
+    // Add timestamp
+    const timestamp = new Date().toISOString();
+    const lineToWrite = `[${timestamp}] ${whitespaceString}\n`;
+
+    console.log("Line to Write: ", lineToWrite);
+
+    // Append to file (creates if doesn't exist)
+    // https://stackoverflow.com/questions/55508942/how-to-provide-the-date-as-filename-using-javascript
+    await promises.appendFile("babel-logs/log-" + new Date().toJSON().slice(0,10) + ".txt", lineToWrite).then(() => {
+      console.log("Finish Write")
+    });
+
+
+    // promises.writeFile("file.txt", stringifyJsonWithWhitespace(ctx.request.body), {
+    //   flag: "w"
+    // }).then(() => {
+    //   console.log("Finish Write")
+    // })
+    //console.log("Continue Working")
   });
 
   staticRouter.get("/about", async (ctx) => {
@@ -452,9 +500,8 @@ const checkBounds = (
 
     if (contentNoNewlines.length > PAGES * LINES * CHARS) {
       ctx.status = 400;
-      ctx.body = `Content cannot be longer than ${
-        PAGES * LINES * CHARS
-      } characters long.`;
+      ctx.body = `Content cannot be longer than ${PAGES * LINES * CHARS
+        } characters long.`;
       return;
     }
 
