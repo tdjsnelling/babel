@@ -16,6 +16,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   max-width: 738px;
   margin: 0 auto;
@@ -319,7 +323,6 @@ footer .epigraph {
   border: 1px solid var(--colour-border);
   border-radius: 2px;
   padding: 10px;
-  color: var(--colour-grey);
   font-size: 13px;
   background-color: rgba(0, 0, 0, 0.025);
 }
