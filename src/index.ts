@@ -10,7 +10,6 @@ import path from "path";
 import fs from "fs";
 import { init as gmp_init } from "gmp-wasm";
 import { createHash } from "crypto";
-import { Level } from "level";
 import { WALLS, SHELVES, BOOKS, PAGES, LINES, CHARS } from "./constants";
 import {
   initialiseNumbers,
@@ -25,6 +24,7 @@ import {
   getRandomWordsBookContent,
 } from "./search";
 import { generatePdf } from "./pdf";
+import { countObjects, getKeyValue, putKeyValue } from "./store";
 
 dotenv.config();
 
@@ -56,10 +56,6 @@ const checkBounds = (
 };
 
 (async () => {
-  const db = new Level("./leveldb");
-
-  const countBookmarks = async () => (await db.keys().all()).length;
-
   const app = new Koa();
   const staticRouter = new Router();
   const dynamicRouter = new Router();
@@ -78,7 +74,7 @@ const checkBounds = (
 
     if (isHash) {
       try {
-        room = await db.get(roomOrHash);
+        room = await getKeyValue(roomOrHash);
       } catch (e) {
         room = null;
       }
@@ -93,19 +89,19 @@ const checkBounds = (
       const hash = "@" + createHash("sha256").update(room).digest("hex");
 
       try {
-        room = await db.get(hash);
+        room = await getKeyValue(hash);
       } catch (e) {
-        await db.put(hash, room);
+        await putKeyValue(hash, room as string);
 
         let bookmarkCount = 0;
 
         try {
-          bookmarkCount = Number(await db.get("_bookmark_count"));
+          bookmarkCount = Number(await getKeyValue("_bookmark_count"));
         } catch (e: any) {
           // key does not exist
         }
 
-        await db.put("_bookmark_count", `${bookmarkCount + 1}`);
+        await putKeyValue("_bookmark_count", `${bookmarkCount + 1}`);
       }
 
       return { hash, room };
@@ -149,14 +145,14 @@ const checkBounds = (
     let bookmarkCount = 0;
 
     try {
-      bookmarkCount = Number(await db.get("_bookmark_count"));
+      bookmarkCount = Number(await getKeyValue("_bookmark_count"));
     } catch (e: any) {
       // key does not exist
     }
 
     if (!bookmarkCount) {
-      const _bookmarkCount = await countBookmarks();
-      await db.put("_bookmark_count", `${_bookmarkCount}`);
+      const _bookmarkCount = await countObjects();
+      await putKeyValue("_bookmark_count", `${_bookmarkCount}`);
     }
 
     await ctx.render("index", { bookmarkCount });

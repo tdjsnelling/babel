@@ -10,6 +10,7 @@
     "build": "tsc",
     "dev": "concurrently --passthrough-arguments --kill-others \"yarn build --watch\" \"nodemon --enable-source-maps dist/src/index.js {1}\"",
     "start": "node dist/src/index.js",
+    "migrate:s3": "node dist/src/tools/leveldb-to-s3.js",
     "lint": "eslint src"
   },
   "devDependencies": {
@@ -28,6 +29,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.812.0",
     "@koa/router": "^10.1.1",
     "dotenv": "^16.0.3",
     "gmp-wasm": "^1.1.0",
