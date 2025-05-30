@@ -129,7 +129,7 @@ When a specific page is accessed, the entire book is generated and split into 41
 
 The alphanumeric room identifiers get very long, up to around 1,000,000 characters. This makes them too long to use in URLs, so the database is responsible for holding 'bookmarks' to each room.
 
-When a room is visited for the first time, it’s SHA-256 hash is calculated and stored in a LevelDB database alongside the actual room identifier. This hash is used in the URL in place of the real room identifier.
+When a room is visited for the first time, it’s SHA-256 hash is calculated and stored in a database alongside the actual room identifier. This hash is used in the URL in place of the real room identifier.
 
 #### But are there not way more unique room identifiers than unique hashes?
 

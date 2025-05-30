@@ -20,6 +20,10 @@ config();
 const REGION: string = process.env.AWS_REGION!;
 const BUCKET_NAME: string = process.env.BUCKET_NAME!;
 
+if (!REGION || !BUCKET_NAME) {
+  throw new Error("Missing AWS_REGION or BUCKET_NAME");
+}
+
 // Initialize S3 client
 const s3 = new S3Client({
   region: REGION,
