@@ -109,7 +109,7 @@ This file contains `N`, `C` and `I` on 3 separate lines. They are:
 
 The code to generate the `numbers` file can be found in `src/utils/gen-constants.ts`. Changing `C` and `I` will change the book index <-> book contents mapping.
 
-A better explanation of why we need these constants can be found in the blog post [A practical use of multiplicative inverses](https://ericlippert.com/2013/11/14/a-practical-use-of-multiplicative-inverses).
+A better explanation of why we need these constants can be found in the blog post [A practical use of multiplicative inverses](https://ericlippert.com/2013/11/14/a-practical-use-of-multiplicative-inverses). This [Math StackExchange question](https://math.stackexchange.com/questions/3022985/multiplication-by-k-is-a-bijection-bmod-n-iff-gcdk-n-1) provides the proof that this method gives us a bijection; meaning that the book index <-> book contents mapping is one-to-one with no repeats.
 
 The operations we need to perform are:
 
