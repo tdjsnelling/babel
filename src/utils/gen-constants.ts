@@ -32,7 +32,7 @@ async function findModularInverse(
   binding.mpz_init(result);
 
   if (inverseExists) {
-    binding.mpz_mod(result, y, mod);
+    binding.mpz_mod(result, x, mod);
     if (binding.mpz_sgn(result) < 0) {
       binding.mpz_add(result, result, mod);
     }
@@ -66,7 +66,7 @@ async function findModularInverse(
     const foundCoprime = await isCoprime(binding, N, C);
 
     if (foundCoprime) {
-      const { result, inverseExists } = await findModularInverse(binding, N, C);
+      const { result, inverseExists } = await findModularInverse(binding, C, N);
 
       if (inverseExists) {
         const nString = binding.mpz_to_string(N, ALPHA.length);
