@@ -16,49 +16,11 @@ In its pages, the library contains every possible combination of these character
 
 This is an explorable representation of the complete library, written in TypeScript.
 
-### Version 3
-
-This is the third version of my implementation of a Library of Babel. 
-
-#### v1
-
-The first was written purely in JavaScript, and contained only all unique *pages*, rather than all unique *books*. 
-
-This meant that a page of prose followed by a page of random characters could not also exist in the library followed by a page of continuing prose. 
-
-The [bignumber.js](https://mikemcl.github.io/bignumber.js/) simply was not capable of working with numbers big enough to build a complete library – in the realm of 29^1312000 rather than 29^3200.
-
-This initial, limited implementation is still available on the `v1` branch.
-
-#### v2
-
-In the second version, the core logic was re-written in C to make use of the [GMP](https://gmplib.org/) library. This combination allowed for much enabled computation using the extremely large numbers required. 
-
-I am not a C programmer, so the code was a mess and likely had some glaring issues that I was not aware of – but it worked. 
-
-The web front-end was still written in JS + Pug, and interacted with the C core via the [Node-API](https://nodejs.org/api/n-api.html).
-
-This version was *slow*, prompting another iteration.
-
-This implementation is still available on the `v2` branch.
-
-#### v3
-
-In this third iteration, the C code is removed in favour of the [gmp-wasm](https://github.com/Daninet/gmp-wasm) GMP<->JS binding.
-
-This means I can work in JS rather than C—which I am much more comfortable with—while still getting the benefits that come with using GMP.
-
-This also means I can do away with the awkward Node-API code and GYP build process. The JavaScript is replaced with TypeScript which helped me catch a few bugs.
-
-Importantly, the 29 character alphabet is expanded to contain 32 characters. This means that calculations are now done in base-32 rather than base-29, resulting much faster conversions in and out of this base-X representation — as this was the primary bottleneck in the slow v2.
-
 ### How do I use it?
 
-You can play with a live instance at [libraryofbabel.app](https://libraryofbabel.app).
+You can browse the library at [libraryofbabel.app](https://libraryofbabel.app).
 
-Alternatively, you can clone this repo and run it yourself.
-
-To build and start on `http://localhost:3000`:
+Alternatively, you can clone this repo and run it yourself. To build and start on `http://localhost:3000`:
 
 ```
 $ yarn install
@@ -133,7 +95,43 @@ When a room is visited for the first time, it’s SHA-256 hash is calculated and
 
 #### But are there not way more unique room identifiers than unique hashes?
 
-Correct. In theory, when enough unique rooms are discovered hashes will start to collide, and old bookmarks will start to be overwritten as new rooms are discovered. In reality this very unlikely to happen, as this many rooms will not be visited. 
+Correct. In theory, when enough unique rooms are discovered hashes will start to collide, and old bookmarks will start to be overwritten as new rooms are discovered. In reality this very unlikely to happen, as this many rooms will not be visited.
+
+### Version 3
+
+This is the third version of my implementation of a Library of Babel.
+
+#### v1
+
+The first was written purely in JavaScript, and contained only all unique *pages*, rather than all unique *books*.
+
+This meant that a page of prose followed by a page of random characters could not also exist in the library followed by a page of continuing prose.
+
+The [bignumber.js](https://mikemcl.github.io/bignumber.js/) simply was not capable of working with numbers big enough to build a complete library – in the realm of 29^1312000 rather than 29^3200.
+
+This initial, limited implementation is still available on the `v1` branch.
+
+#### v2
+
+In the second version, the core logic was re-written in C to make use of the [GMP](https://gmplib.org/) library. This combination allowed for much enabled computation using the extremely large numbers required.
+
+I am not a C programmer, so the code was a mess and likely had some glaring issues that I was not aware of – but it worked.
+
+The web front-end was still written in JS + Pug, and interacted with the C core via the [Node-API](https://nodejs.org/api/n-api.html).
+
+This version was *slow*, prompting another iteration.
+
+This implementation is still available on the `v2` branch.
+
+#### v3
+
+In this third iteration, the C code is removed in favour of the [gmp-wasm](https://github.com/Daninet/gmp-wasm) GMP<->JS binding.
+
+This means I can work in JS rather than C—which I am much more comfortable with—while still getting the benefits that come with using GMP.
+
+This also means I can do away with the awkward Node-API code and GYP build process. The JavaScript is replaced with TypeScript which helped me catch a few bugs.
+
+Importantly, the 29 character alphabet is expanded to contain 32 characters. This means that calculations are now done in base-32 rather than base-29, resulting much faster conversions in and out of this base-X representation — as this was the primary bottleneck in the slow v2.
 
 ### Prior art
 
