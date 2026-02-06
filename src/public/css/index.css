@@ -40,15 +40,15 @@ a {
   font-weight: bold;
 }
 
-a[target="_blank"]:not(.noexternal)::after {
-  content: "";
-  display: inline-block;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill:currentColor;"><path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"></path></svg>');
-  width: 14px;
-  height: 14px;
-  transform: rotate(-45deg);
-  vertical-align: top;
-}
+/*a[target="_blank"]:not(.noexternal)::after {*/
+/*  content: "";*/
+/*  display: inline-block;*/
+/*  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill:currentColor;"><path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"></path></svg>');*/
+/*  width: 14px;*/
+/*  height: 14px;*/
+/*  transform: rotate(-45deg);*/
+/*  vertical-align: top;*/
+/*}*/
 
 nav {
   display: flex;
@@ -93,10 +93,12 @@ footer .epigraph {
 
 .BodyStyle {
   position: relative;
+  text-align: justify;
+  hyphens: auto;
 }
 
 .BodyStyle > * + * {
-  margin-top: 15px;
+  margin-top: 16px;
 }
 
 .BodyStyle h2,
@@ -374,9 +376,9 @@ footer .epigraph {
 
 @media screen and (min-width: 590px) {
   .Librarian {
-    width: 300px;
+    width: 280px;
     float: right;
-    margin-left: 15px;
+    margin-left: 30px;
     margin-bottom: 15px;
   }
 }
