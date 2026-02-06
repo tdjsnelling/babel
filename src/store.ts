@@ -16,6 +16,13 @@ import { config } from "dotenv";
 
 config();
 
+const cache = new Map<string, string>();
+
+function addToCache(key: string, value: string): void {
+  cache.set(key, value);
+  if (cache.size > 50) cache.delete(cache.keys().next().value);
+}
+
 // Configuration
 const REGION: string = process.env.AWS_REGION!;
 const BUCKET_NAME: string = process.env.BUCKET_NAME!;
@@ -33,6 +40,8 @@ const s3 = new S3Client({
  * Store a key-value pair (value as plain text)
  */
 export async function putKeyValue(key: string, value: string): Promise<void> {
+  addToCache(key, value);
+
   await s3.send(
     new PutObjectCommand({
       Bucket: BUCKET_NAME,
@@ -47,10 +56,21 @@ export async function putKeyValue(key: string, value: string): Promise<void> {
  * Retrieve a value by key. Throws if key not found
  */
 export async function getKeyValue(key: string): Promise<string> {
+  if (key !== "_bookmark_count" && cache.has(key)) {
+    console.log(`cache hit for ${key}`);
+    return cache.get(key)!;
+  }
+
+  console.log(`cache miss for ${key}`);
+
   const response = await s3.send(
     new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key })
   );
-  return await streamToString(response.Body as Readable);
+  const value = await streamToString(response.Body as Readable);
+
+  if (key !== "_bookmark_count") addToCache(key, value);
+
+  return value;
 }
 
 /**

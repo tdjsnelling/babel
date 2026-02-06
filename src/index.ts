@@ -94,7 +94,8 @@ const checkBounds = (
       try {
         room = await getKeyValue(hash);
       } catch (e) {
-        await putKeyValue(hash, room as string);
+        // we don't need to await this as we'll also store the value in the local KV cache
+        putKeyValue(hash, room as string);
 
         let bookmarkCount = 0;
 
@@ -104,7 +105,8 @@ const checkBounds = (
           // key does not exist
         }
 
-        await putKeyValue("_bookmark_count", `${bookmarkCount + 1}`);
+        // we don't need to await this for any meaningful reason
+        putKeyValue("_bookmark_count", `${bookmarkCount + 1}`);
       }
 
       return { hash, room };
@@ -454,6 +456,8 @@ const checkBounds = (
     let highlight;
     let page = 1;
 
+    const t0 = Date.now();
+
     if (!mode || mode === "empty") {
       ({ book, page } = getEmptyPageBookContent(lowerCase));
     } else if (mode === "emptybook") {
@@ -472,14 +476,23 @@ const checkBounds = (
       highlight = [newStartLine, startCol, newEndLine, endCol].join(":");
     }
 
+    const t1 = Date.now();
+    console.log(`Search took ${t1 - t0}ms`);
+
     try {
       const identifier = await lookupContent(binding, book, I, N, page);
+
+      const t2 = Date.now();
+      console.log(`Lookup took ${t2 - t1}ms`);
 
       const [room, ...rest] = identifier.split(".");
       const bookmark = await getBookmark(room);
       if (!bookmark) {
         throw new Error("That bookmark does not exist");
       }
+
+      const t3 = Date.now();
+      console.log(`Get bookmark took ${t3 - t2}ms`);
 
       ctx.body = { ref: [bookmark.hash, ...rest].join("."), highlight };
     } catch (e: any) {
