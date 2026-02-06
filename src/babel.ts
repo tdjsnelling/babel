@@ -17,6 +17,14 @@ import {
 } from "./constants";
 
 /*
+  Pre-compute content char -> base32 map to prevent millions of `ALPHA.indexOf(char)`
+*/
+const CHAR_MAP = ALPHA.split("").reduce((acc, char, index) => {
+  acc[char] = index.toString(ALPHA.length);
+  return acc;
+}, {} as Record<string, string>);
+
+/*
   Get a sequential book index from an identifier in the format `1.1.1.1.1`.
 */
 async function getSequentialContentNumberFromIdentifier(
@@ -272,7 +280,7 @@ export async function lookupContent(
 
   const hash = paddedContent
     .split("")
-    .map((char) => ALPHA.indexOf(char).toString(ALPHA.length))
+    .map((char) => CHAR_MAP[char])
     .join("");
 
   const seqNumber = binding.mpz_t();
