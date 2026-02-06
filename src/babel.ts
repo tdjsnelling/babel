@@ -278,10 +278,7 @@ export async function lookupContent(
   const seqNumber = binding.mpz_t();
   binding.mpz_init(seqNumber);
   binding.mpz_set_string(seqNumber, hash, ALPHA.length);
-
   binding.mpz_mul(seqNumber, seqNumber, I);
-  binding.mpz_clear(I);
-
   binding.mpz_mod(seqNumber, seqNumber, N);
 
   return getIdentifierFromSequentialContentNumber(binding, seqNumber, page);

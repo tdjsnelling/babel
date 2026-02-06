@@ -56,6 +56,9 @@ const checkBounds = (
 };
 
 (async () => {
+  const { binding, calculate } = await gmp_init();
+  const { N, C, I } = await initialiseNumbers(binding);
+
   const app = new Koa();
   const staticRouter = new Router();
   const dynamicRouter = new Router();
@@ -205,8 +208,6 @@ const checkBounds = (
         return;
       }
 
-      const { binding } = await gmp_init();
-      const { C, N } = await initialiseNumbers(binding);
       const {
         content,
         roomShort,
@@ -224,7 +225,6 @@ const checkBounds = (
         N,
         false
       );
-      await binding.reset();
 
       const [prevRoom, ...prevRest] = prevIdentifier.split(".");
       const prevBookmark = await getBookmark(prevRoom);
@@ -325,8 +325,6 @@ const checkBounds = (
     }
 
     try {
-      const { binding } = await gmp_init();
-      const { C, N } = await initialiseNumbers(binding);
       const { content, roomShort, wall, shelf, book } = await generateContent(
         binding,
         [bookmark.room, idWall, idShelf, idBook].join("."),
@@ -334,7 +332,6 @@ const checkBounds = (
         N,
         true
       );
-      await binding.reset();
 
       ctx.set("Content-Type", "application/pdf");
       ctx.body = await generatePdf(
@@ -397,7 +394,6 @@ const checkBounds = (
 
       let roomBuf = Buffer.alloc(0);
 
-      const { calculate } = await gmp_init();
       // @ts-ignore
       calculate((g) => {
         roomBuf = Buffer.from(
@@ -477,10 +473,7 @@ const checkBounds = (
     }
 
     try {
-      const { binding } = await gmp_init();
-      const { I, N } = await initialiseNumbers(binding);
       const identifier = await lookupContent(binding, book, I, N, page);
-      await binding.reset();
 
       const [room, ...rest] = identifier.split(".");
       const bookmark = await getBookmark(room);
@@ -490,6 +483,7 @@ const checkBounds = (
 
       ctx.body = { ref: [bookmark.hash, ...rest].join("."), highlight };
     } catch (e: any) {
+      console.error(e);
       ctx.status = 500;
       ctx.body = e.message;
     }
@@ -497,9 +491,7 @@ const checkBounds = (
 
   dynamicRouter.get("/random", async (ctx) => {
     try {
-      const { binding } = await gmp_init();
       const identifier = await getRandomIdentifier(binding);
-      await binding.reset();
 
       const [room, ...rest] = identifier.split(".");
       const bookmark = await getBookmark(room);
@@ -531,7 +523,6 @@ const checkBounds = (
 
       let roomStr;
 
-      const { calculate } = await gmp_init();
       // @ts-ignore
       calculate((g) => {
         roomStr = g.Integer(new Uint8Array(room), 32).toString(32);
