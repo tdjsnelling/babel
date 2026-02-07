@@ -19,8 +19,9 @@ config();
 const cache = new Map<string, string>();
 
 function addToCache(key: string, value: string): void {
+  if (cache.has(key)) return;
   cache.set(key, value);
-  if (cache.size > 50) cache.delete(cache.keys().next().value);
+  if (cache.size > 20) cache.delete(cache.keys().next().value);
 }
 
 // Configuration
