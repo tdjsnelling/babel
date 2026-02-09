@@ -52,8 +52,9 @@ a {
 
 nav {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  grid-gap: 10px;
   margin-bottom: 40px;
 }
 
@@ -110,7 +111,7 @@ footer .epigraph {
 
 .BodyStyle ul,
 .BodyStyle ol {
-  padding-left: 18px;
+  padding-left: 1.5em;
 }
 
 .ProseStyle {
@@ -154,6 +155,7 @@ footer .epigraph {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  grid-gap: 10px;
   margin-bottom: 20px;
 }
 
@@ -178,12 +180,16 @@ footer .epigraph {
 
 .PageActions {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   grid-gap: 5px;
   border: 1px solid var(--colour-border);
   border-radius: 2px;
   padding: 10px;
   margin-bottom: 20px;
+
+  @media screen and (min-width: 730px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .PageContentWrapper {
@@ -314,9 +320,16 @@ footer .epigraph {
   margin-top: 10px;
 }
 
+.PageActions button:hover,
+.SearchForm button:hover,
+.BrowseForm button:hover {
+  text-decoration: underline;
+}
+
+.PageActions button[disabled],
 .SearchForm button[disabled],
-.BrowseForm button[disabled],
-.PageFooter button[disabled] {
+.BrowseForm button[disabled] {
+  text-decoration: none;
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -368,7 +381,7 @@ footer .epigraph {
   width: 100%;
   max-width: 400px;
   margin-bottom: 15px;
-  border-radius: 8px;
+  border-radius: 4px;
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -386,7 +399,7 @@ footer .epigraph {
 .Banner {
   width: 100%;
   margin-bottom: 30px;
-  border-radius: 8px;
+  border-radius: 4px;
   display: block;
 }
 
