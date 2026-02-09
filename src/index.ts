@@ -109,7 +109,7 @@ const checkBounds = (
   };
 
   app.use(async (ctx, next) => {
-    ctx.set("Cache-Control", "public, max-age=86400");
+    ctx.set("Cache-Control", "public, max-age=3600");
     await next();
   });
 
