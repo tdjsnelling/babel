@@ -7,24 +7,29 @@ html(lang="en")
         include includes/nav.pug
 
         main
-            div.BodyStyle(style="margin-bottom: 20px;")
-                img.Librarian(src="/image/librarian-5.png", alt="A man in a hooded robe sat studying a book in the style of a woodcut printing")
+            div(style="margin-bottom: 20px;")
+                div.SearchGrid
+                    img(src="/image/mucha-2.png", alt="A man in a hooded robe sat studying a book in the style of a woodcut printing")
 
-                p Any text you can come up with will already have been written down, somewhere deep within the library. All that remains is to find it.
-                p
-                    em “...the detailed history of the future...”
-                p
-                    em “...the autobiographies of the archangels...”
-                p
-                    em “...the faithful catalog of the Library...”
-                p
-                    em “...the true story of your death...”
-                p
-                    em “...the translation of every book into every language...”
-                p
-                    em “...the interpolations of every book into all books...”
-                p
-                    em “...the lost books of Tacitus...”
+                    div.BodyStyle
+                        p.initial
+                            span Any
+                            |
+                            | text you can come up with will already have been written down, somewhere deep within the library. All that remains is to find it.
+                        p
+                            em “...the detailed history of the future...”
+                        p
+                            em “...the autobiographies of the archangels...”
+                        p
+                            em “...the faithful catalog of the Library...”
+                        p
+                            em “...the true story of your death...”
+                        p
+                            em “...the translation of every book into every language...”
+                        p
+                            em “...the interpolations of every book into all books...”
+                        p
+                            em “...the lost books of Tacitus...”
 
             form.SearchForm
                 textarea(name="content", rows=10, required=true, placeholder="Enter up to 1,312,000 characters from a-z, comma, full-stop, exclamation mark, question mark, hyphen, or space. New lines are preserved in empty page and empty book modes.")

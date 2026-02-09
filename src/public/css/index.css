@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "CloisterBlack";
+  src: url("/font/CloisterBlack.ttf") format("truetype");
+}
+
 :root {
   --colour-bg: floralwhite;
   --colour-fg: #111;
@@ -38,6 +43,10 @@ body {
 a {
   color: var(--colour-fg);
   font-weight: bold;
+}
+
+a:hover {
+  color: darkred;
 }
 
 /*a[target="_blank"]:not(.noexternal)::after {*/
@@ -112,6 +121,23 @@ footer .epigraph {
 .BodyStyle ul,
 .BodyStyle ol {
   padding-left: 1.5em;
+}
+
+.BodyStyle p.initial > span:first-child {
+  font-weight: bold;
+  font-variant: small-caps;
+  margin-left: -4px;
+}
+
+.BodyStyle p.initial:first-letter {
+  float: left;
+  font-family: "CloisterBlack", "Times New Roman", serif;
+  font-size: 44px;
+  font-weight: normal;
+  line-height: 28px;
+  color: darkred;
+  margin-top: 5px;
+  margin-right: 4px;
 }
 
 .ProseStyle {
@@ -280,6 +306,17 @@ footer .epigraph {
   cursor: pointer;
 }
 
+.SearchGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  grid-gap: 20px;
+}
+
+.SearchGrid img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
 .SearchForm textarea,
 .BrowseForm textarea {
   appearance: none;
@@ -380,18 +417,16 @@ footer .epigraph {
 .Librarian {
   width: 100%;
   max-width: 400px;
-  margin-bottom: 15px;
+  margin-bottom: 30px;
   border-radius: 4px;
   display: block;
   margin-left: auto;
   margin-right: auto;
-}
 
-@media screen and (min-width: 590px) {
-  .Librarian {
-    width: 280px;
+  @media screen and (min-width: 590px) {
+    width: 285px;
     float: right;
-    margin-left: 30px;
+    margin-left: 15px;
     margin-bottom: 15px;
   }
 }
