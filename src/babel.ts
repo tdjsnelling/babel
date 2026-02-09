@@ -84,6 +84,8 @@ async function getSequentialContentNumberFromIdentifier(
   binding.mpz_init(seqNumber);
   binding.mpz_add_ui(seqNumber, pRooms, pWalls + pShelves + pBooks);
 
+  binding.mpz_clears(intRoom, totalRooms, pRooms);
+
   return { seqNumber, page: parsedPage };
 }
 
@@ -125,6 +127,8 @@ async function getIdentifierFromSequentialContentNumber(
   const wallString = binding.mpz_to_string(wall, 10);
   const shelfString = binding.mpz_to_string(shelf, 10);
   const bookString = binding.mpz_to_string(seqNumber, 10);
+
+  binding.mpz_clears(room, wall, shelf);
 
   return [roomString, wallString, shelfString, bookString, page].join(".");
 }
@@ -172,6 +176,8 @@ export async function generateContent<T extends boolean>(
   binding.mpz_mod(result, result, N);
 
   let hash = binding.mpz_to_string(result, ALPHA.length);
+
+  binding.mpz_clear(result);
 
   const paddingRequired = BOOK_LENGTH - hash.length;
   if (paddingRequired > 0) {
@@ -245,6 +251,8 @@ export async function generateContent<T extends boolean>(
     prevPage
   );
 
+  binding.mpz_clears(seqNumber, nextSeqNumber, prevSeqNumber);
+
   return {
     content,
     roomShort,
@@ -289,7 +297,15 @@ export async function lookupContent(
   binding.mpz_mul(seqNumber, seqNumber, I);
   binding.mpz_mod(seqNumber, seqNumber, N);
 
-  return getIdentifierFromSequentialContentNumber(binding, seqNumber, page);
+  const identifier = await getIdentifierFromSequentialContentNumber(
+    binding,
+    seqNumber,
+    page
+  );
+
+  binding.mpz_clear(seqNumber);
+
+  return identifier;
 }
 
 /*
@@ -315,11 +331,15 @@ export async function getRandomIdentifier(
 
   const randomPage = Math.floor(Math.random() * PAGES + 1);
 
-  return await getIdentifierFromSequentialContentNumber(
+  const identifier = await getIdentifierFromSequentialContentNumber(
     binding,
     randomSeqNumber,
     randomPage
   );
+
+  binding.mpz_clears(randomSeqNumber, uniqueBooks);
+
+  return identifier;
 }
 
 /*
