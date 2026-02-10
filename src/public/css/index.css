@@ -9,6 +9,7 @@
   --colour-grey: #545454;
   --colour-light-grey: #888;
   --colour-border: #e3dad0;
+  --colour-border-dark: #cac3ba;
   --font-mono: "Source Code Pro", monospace;
   --font-serif: "Lora", serif;
 }
@@ -218,6 +219,10 @@ footer .epigraph {
   }
 }
 
+.PageActions button {
+  font-weight: normal;
+}
+
 .PageContentWrapper {
   max-width: 100%;
   overflow-x: auto;
@@ -288,22 +293,34 @@ footer .epigraph {
   background-position: 100% 50%;
   margin-left: 5px;
   font-family: var(--font-mono);
-  border: 1px solid grey;
+  border: 1px solid var(--colour-border-dark);
   border-radius: 2px;
   padding: 2px 16px 2px 5px;
 }
 
-.PageActions button {
+button {
   appearance: none;
   width: 100%;
   padding: 5px 10px;
   font-family: var(--font-serif);
   font-size: 14px;
-  border: 1px solid grey;
+  font-weight: bold;
+  text-decoration: underline;
+  border: 1px solid var(--colour-border-dark);
   border-radius: 2px;
-  background-color: antiquewhite;
+  background-color: #eedccf;
   color: var(--colour-fg);
   cursor: pointer;
+}
+
+button:hover {
+  color: darkred;
+}
+
+button[disabled] {
+  text-decoration: none;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .SearchGrid {
@@ -327,7 +344,7 @@ footer .epigraph {
   padding: 10px;
   font-family: var(--font-mono);
   font-size: 14px;
-  border: 1px solid grey;
+  border: 1px solid var(--colour-border-dark);
   border-radius: 2px;
   margin-bottom: 10px;
 }
@@ -344,31 +361,15 @@ footer .epigraph {
 
 .SearchForm button,
 .BrowseForm button {
-  appearance: none;
-  width: 100%;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
   padding: 10px;
-  font-family: var(--font-serif);
-  font-size: 14px;
-  border: 1px solid grey;
-  border-radius: 2px;
-  background-color: antiquewhite;
-  color: var(--colour-fg);
-  cursor: pointer;
   margin-top: 10px;
-}
+  transition: all 75ms ease-in-out;
 
-.PageActions button:hover,
-.SearchForm button:hover,
-.BrowseForm button:hover {
-  text-decoration: underline;
-}
-
-.PageActions button[disabled],
-.SearchForm button[disabled],
-.BrowseForm button[disabled] {
-  text-decoration: none;
-  cursor: not-allowed;
-  opacity: 0.5;
+  &:hover {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.25);
+    transform: translateY(1px);
+  }
 }
 
 .InfoBox {
@@ -405,7 +406,7 @@ footer .epigraph {
   padding: 10px;
   font-family: var(--font-mono);
   font-size: 14px;
-  border: 1px solid grey;
+  border: 1px solid var(--colour-border-dark);
   border-radius: 2px;
 }
 
