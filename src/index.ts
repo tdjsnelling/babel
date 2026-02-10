@@ -476,23 +476,14 @@ const checkBounds = (
       highlight = [newStartLine, startCol, newEndLine, endCol].join(":");
     }
 
-    const t1 = Date.now();
-    console.log(`Search took ${t1 - t0}ms`);
-
     try {
       const identifier = await lookupContent(binding, book, I, N, page);
-
-      const t2 = Date.now();
-      console.log(`Lookup took ${t2 - t1}ms`);
 
       const [room, ...rest] = identifier.split(".");
       const bookmark = await getBookmark(room);
       if (!bookmark) {
         throw new Error("That bookmark does not exist");
       }
-
-      const t3 = Date.now();
-      console.log(`Get bookmark took ${t3 - t2}ms`);
 
       ctx.body = { ref: [bookmark.hash, ...rest].join("."), highlight };
     } catch (e: any) {

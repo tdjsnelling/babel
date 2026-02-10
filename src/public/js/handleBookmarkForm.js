@@ -8,7 +8,6 @@ let file;
 
 bookmarkFileInput.addEventListener("change", (event) => {
   [file] = event.target.files;
-  console.log(file);
 });
 
 bookmarkForm.onsubmit = async (e) => {
