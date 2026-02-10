@@ -115,7 +115,21 @@ const checkBounds = (
 
   app.use(async (ctx, next) => {
     ctx.set("Cache-Control", "public, max-age=0, must-revalidate");
-    ctx.set("ETag", process.env.NF_DEPLOYMENT_SHA ?? "nocommit");
+    if (process.env.NF_DEPLOYMENT_SHA)
+      ctx.set("ETag", process.env.NF_DEPLOYMENT_SHA);
+    await next();
+  });
+
+  app.use(async (ctx, next) => {
+    if (
+      ctx.request.header["if-none-match"] &&
+      ctx.request.header["if-none-match"] === process.env.NF_DEPLOYMENT_SHA
+    ) {
+      ctx.status = 304;
+      ctx.body = null;
+      return;
+    }
+
     await next();
   });
 
