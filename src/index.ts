@@ -109,7 +109,8 @@ const checkBounds = (
   };
 
   app.use(async (ctx, next) => {
-    ctx.set("Cache-Control", "public, max-age=3600");
+    ctx.set("Cache-Control", "public, max-age=0, must-revalidate");
+    ctx.set("ETag", process.env.NF_DEPLOYMENT_SHA ?? "nocommit");
     await next();
   });
 
