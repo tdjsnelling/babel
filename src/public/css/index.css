@@ -308,7 +308,7 @@ button {
   text-decoration: underline;
   border: 1px solid var(--colour-border-dark);
   border-radius: 2px;
-  background-color: #eedccf;
+  background-color: #efe5dd;
   color: var(--colour-fg);
   cursor: pointer;
 }
@@ -325,13 +325,25 @@ button[disabled] {
 
 .SearchGrid {
   display: grid;
-  grid-template-columns: 1fr 1.1fr;
-  grid-gap: 20px;
+  grid-template-columns: 1fr;
+  grid-gap: 30px;
+
+  @media screen and (min-width: 730px) {
+    grid-template-columns: 1fr 1.1fr;
+    grid-gap: 20px;
+  }
 }
 
 .SearchGrid img {
-  max-width: 100%;
+  width: 100%;
+  max-width: 400px;
   border-radius: 4px;
+  margin: 0 auto;
+
+  @media screen and (min-width: 730px) {
+    max-width: 100%;
+    margin: 0;
+  }
 }
 
 .SearchForm textarea,
