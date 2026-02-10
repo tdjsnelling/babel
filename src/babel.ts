@@ -17,10 +17,15 @@ import {
 } from "./constants";
 
 /*
-  Pre-compute content char -> base32 map to prevent millions of `ALPHA.indexOf(char)`
+  Pre-compute content char <-> base32 maps
 */
+const NUM_MAP = ALPHA.split("").reduce((acc, char, index) => {
+  acc[index.toString(ALPHA.length)] = char; // ALPHA[parseInt(char, ALPHA.length)]
+  return acc;
+}, {} as Record<string, string>);
+
 const CHAR_MAP = ALPHA.split("").reduce((acc, char, index) => {
-  acc[char] = index.toString(ALPHA.length);
+  acc[char] = index.toString(ALPHA.length); // ALPHA.indexOf(char)
   return acc;
 }, {} as Record<string, string>);
 
@@ -185,13 +190,17 @@ export async function generateContent<T extends boolean>(
     hash = padding + hash;
   }
 
-  let content = "";
   const start = wholeBook ? 0 : (page - 1) * PAGE_LENGTH;
   const end = wholeBook ? BOOK_LENGTH : start + PAGE_LENGTH;
-  for (let i = start; i < end; i++) {
-    const char = hash[i];
-    content += ALPHA[parseInt(char, ALPHA.length)];
+
+  const contentArr = new Array(end - start);
+
+  for (let i = 0; i < contentArr.length; i++) {
+    const char = hash[start + i];
+    contentArr[i] = NUM_MAP[char];
   }
+
+  const content = contentArr.join("");
 
   const [room, wall, shelf, book] = identifier.split(".");
 
@@ -278,22 +287,15 @@ export async function lookupContent(
   N: mpz_ptr,
   page: number
 ): Promise<string> {
-  let paddedContent = content;
+  const hash = new Array(BOOK_LENGTH).fill(CHAR_MAP[" "]);
 
-  const paddingRequired = BOOK_LENGTH - content.length;
-  if (paddingRequired > 0) {
-    const padding = new Array(paddingRequired).fill(" ").join("");
-    paddedContent += padding;
+  for (let i = 0; i < content.length; i++) {
+    hash[i] = CHAR_MAP[content[i]];
   }
-
-  const hash = paddedContent
-    .split("")
-    .map((char) => CHAR_MAP[char])
-    .join("");
 
   const seqNumber = binding.mpz_t();
   binding.mpz_init(seqNumber);
-  binding.mpz_set_string(seqNumber, hash, ALPHA.length);
+  binding.mpz_set_string(seqNumber, hash.join(""), ALPHA.length);
   binding.mpz_mul(seqNumber, seqNumber, I);
   binding.mpz_mod(seqNumber, seqNumber, N);
 
