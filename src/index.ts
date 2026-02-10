@@ -170,7 +170,7 @@ const checkBounds = (
     await ctx.render("search");
   });
 
-  staticRouter.get("/story", async (ctx) => {
+  staticRouter.get("/the-library-of-babel", async (ctx) => {
     await ctx.render("story");
   });
 

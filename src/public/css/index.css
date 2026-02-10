@@ -124,13 +124,18 @@ footer .epigraph {
   padding-left: 1.5em;
 }
 
-.BodyStyle p.initial > span:first-child {
+.BodyStyle p.initial, .ProseStyle p.initial {
+  text-indent: 0;
+}
+.BodyStyle p.initial > span:first-child,
+.ProseStyle p.initial > span:first-child {
   font-weight: bold;
   font-variant: small-caps;
   margin-left: -4px;
 }
 
-.BodyStyle p.initial:first-letter {
+.BodyStyle p.initial:first-letter,
+.ProseStyle p.initial:first-letter {
   float: left;
   font-family: "CloisterBlack", "Times New Roman", serif;
   font-size: 44px;
@@ -142,9 +147,9 @@ footer .epigraph {
 }
 
 .ProseStyle {
-  max-width: 58ch;
+  max-width: 60ch;
   margin: 0 auto;
-  hyphens: auto;
+  line-height: 1.5;
 }
 
 .ProseStyle h2 {
@@ -158,9 +163,14 @@ footer .epigraph {
   margin-bottom: 15px;
 }
 
+.ProseStyle h4 {
+  font-size: 14px;
+  text-align: center;
+}
+
 .ProseStyle p {
   text-align: justify;
-  text-indent: 1em;
+  text-indent: 2em;
 }
 
 .ProseStyle .Footnotes {
