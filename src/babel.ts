@@ -17,6 +17,19 @@ import {
 } from "./constants";
 
 /*
+  Pre-compute content char <-> base32 maps
+*/
+const NUM_MAP = ALPHA.split("").reduce((acc, char, index) => {
+  acc[index.toString(ALPHA.length)] = char; // ALPHA[parseInt(char, ALPHA.length)]
+  return acc;
+}, {} as Record<string, string>);
+
+const CHAR_MAP = ALPHA.split("").reduce((acc, char, index) => {
+  acc[char] = index.toString(ALPHA.length); // ALPHA.indexOf(char)
+  return acc;
+}, {} as Record<string, string>);
+
+/*
   Get a sequential book index from an identifier in the format `1.1.1.1.1`.
 */
 async function getSequentialContentNumberFromIdentifier(
@@ -76,6 +89,8 @@ async function getSequentialContentNumberFromIdentifier(
   binding.mpz_init(seqNumber);
   binding.mpz_add_ui(seqNumber, pRooms, pWalls + pShelves + pBooks);
 
+  binding.mpz_clears(intRoom, totalRooms, pRooms);
+
   return { seqNumber, page: parsedPage };
 }
 
@@ -117,6 +132,8 @@ async function getIdentifierFromSequentialContentNumber(
   const wallString = binding.mpz_to_string(wall, 10);
   const shelfString = binding.mpz_to_string(shelf, 10);
   const bookString = binding.mpz_to_string(seqNumber, 10);
+
+  binding.mpz_clears(room, wall, shelf);
 
   return [roomString, wallString, shelfString, bookString, page].join(".");
 }
@@ -165,19 +182,25 @@ export async function generateContent<T extends boolean>(
 
   let hash = binding.mpz_to_string(result, ALPHA.length);
 
+  binding.mpz_clear(result);
+
   const paddingRequired = BOOK_LENGTH - hash.length;
   if (paddingRequired > 0) {
     const padding = new Array(paddingRequired).fill("0").join("");
     hash = padding + hash;
   }
 
-  let content = "";
   const start = wholeBook ? 0 : (page - 1) * PAGE_LENGTH;
   const end = wholeBook ? BOOK_LENGTH : start + PAGE_LENGTH;
-  for (let i = start; i < end; i++) {
-    const char = hash[i];
-    content += ALPHA[parseInt(char, ALPHA.length)];
+
+  const contentArr = new Array(end - start);
+
+  for (let i = 0; i < contentArr.length; i++) {
+    const char = hash[start + i];
+    contentArr[i] = NUM_MAP[char];
   }
+
+  const content = contentArr.join("");
 
   const [room, wall, shelf, book] = identifier.split(".");
 
@@ -237,6 +260,8 @@ export async function generateContent<T extends boolean>(
     prevPage
   );
 
+  binding.mpz_clears(seqNumber, nextSeqNumber, prevSeqNumber);
+
   return {
     content,
     roomShort,
@@ -262,29 +287,27 @@ export async function lookupContent(
   N: mpz_ptr,
   page: number
 ): Promise<string> {
-  let paddedContent = content;
+  const hash = new Array(BOOK_LENGTH).fill(CHAR_MAP[" "]);
 
-  const paddingRequired = BOOK_LENGTH - content.length;
-  if (paddingRequired > 0) {
-    const padding = new Array(paddingRequired).fill(" ").join("");
-    paddedContent += padding;
+  for (let i = 0; i < content.length; i++) {
+    hash[i] = CHAR_MAP[content[i]];
   }
-
-  const hash = paddedContent
-    .split("")
-    .map((char) => ALPHA.indexOf(char).toString(ALPHA.length))
-    .join("");
 
   const seqNumber = binding.mpz_t();
   binding.mpz_init(seqNumber);
-  binding.mpz_set_string(seqNumber, hash, ALPHA.length);
-
+  binding.mpz_set_string(seqNumber, hash.join(""), ALPHA.length);
   binding.mpz_mul(seqNumber, seqNumber, I);
-  binding.mpz_clear(I);
-
   binding.mpz_mod(seqNumber, seqNumber, N);
 
-  return getIdentifierFromSequentialContentNumber(binding, seqNumber, page);
+  const identifier = await getIdentifierFromSequentialContentNumber(
+    binding,
+    seqNumber,
+    page
+  );
+
+  binding.mpz_clear(seqNumber);
+
+  return identifier;
 }
 
 /*
@@ -310,11 +333,15 @@ export async function getRandomIdentifier(
 
   const randomPage = Math.floor(Math.random() * PAGES + 1);
 
-  return await getIdentifierFromSequentialContentNumber(
+  const identifier = await getIdentifierFromSequentialContentNumber(
     binding,
     randomSeqNumber,
     randomPage
   );
+
+  binding.mpz_clears(randomSeqNumber, uniqueBooks);
+
+  return identifier;
 }
 
 /*

@@ -2,6 +2,9 @@
 import { words } from "popular-english-words";
 import { ALPHA, CHARS, LINES, PAGES } from "./constants";
 
+// Precompute for fast membership checks
+const allowed = new Set(ALPHA);
+
 const getHighlightPos = (start: number, length: number) => {
   const startLine = Math.floor(start / CHARS);
   const startCol = start % CHARS;
@@ -14,57 +17,54 @@ const getHighlightPos = (start: number, length: number) => {
 };
 
 export const getEmptyBookContent = (content: string) => {
-  let book = content
-    .split("\n")
-    .map((line) => {
-      let chars = line.split("");
-      chars.forEach((char, i) => {
-        if (!ALPHA.includes(char)) chars[i] = " ";
-      });
-      if (chars.length < CHARS) {
-        chars = chars.concat(Array(CHARS - line.length).fill(" "));
-      }
-      return chars.join("");
-    })
-    .join("");
+  const lines = content.slice(0, LINES * CHARS).split("\n");
 
-  while (book.length < PAGES * LINES * CHARS) book += " ";
+  let page = "";
+  for (let li = 0; li < LINES; li++) {
+    const line = lines[li] ?? "";
+    let out = "";
+    for (let i = 0; i < CHARS; i++) {
+      const c = line[i] ?? " ";
+      out += allowed.has(c) ? c : " ";
+    }
+    page += out;
+  }
 
-  return book;
+  const bookArr = new Array(PAGES * LINES * CHARS).fill(" ");
+
+  for (let i = 0; i < page.length; i++) {
+    bookArr[i] = page[i];
+  }
+
+  return bookArr.join("");
 };
+
+const randAlphaChar = () => ALPHA[(Math.random() * ALPHA.length) | 0];
 
 export const getEmptyPageBookContent = (content: string) => {
   const randomPage = Math.floor(Math.random() * PAGES);
   const startChar = randomPage * LINES * CHARS;
 
-  let book = "";
+  const lines = content.slice(0, LINES * CHARS).split("\n");
 
-  while (book.length < startChar) {
-    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+  let page = "";
+  for (let li = 0; li < LINES; li++) {
+    const line = lines[li] ?? "";
+    let out = "";
+    for (let i = 0; i < CHARS; i++) {
+      const c = line[i] ?? " ";
+      out += allowed.has(c) ? c : " ";
+    }
+    page += out;
   }
 
-  const trimmedContent = content.substring(0, LINES * CHARS);
+  const bookArr = new Array(PAGES * LINES * CHARS);
 
-  let page = trimmedContent
-    .split("\n")
-    .map((line) => {
-      let chars = line.split("");
-      chars.forEach((char, i) => {
-        if (!ALPHA.includes(char)) chars[i] = " ";
-      });
-      if (chars.length < CHARS) {
-        chars = chars.concat(Array(CHARS - line.length).fill(" "));
-      }
-      return chars.join("");
-    })
-    .join("");
+  for (let i = 0; i < PAGES * LINES * CHARS; i++) bookArr[i] = randAlphaChar();
 
-  while (page.length < LINES * CHARS) page += " ";
+  for (let i = 0; i < page.length; i++) bookArr[startChar + i] = page[i];
 
-  book += page;
-
-  while (book.length < PAGES * LINES * CHARS)
-    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+  const book = bookArr.join("");
 
   return { book, page: randomPage + 1 };
 };
@@ -78,15 +78,15 @@ export const getRandomCharsBookContent = (content: string) => {
 
   const noLineBreaks = content.replace(/\r/g, "").replace(/\n/g, "");
 
-  let book = "";
+  const bookArr = new Array(PAGES * LINES * CHARS);
 
-  while (book.length < randomStartPosition) {
-    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
+  for (let i = 0; i < PAGES * LINES * CHARS; i++) bookArr[i] = randAlphaChar();
+
+  for (let i = 0; i < noLineBreaks.length; i++) {
+    bookArr[randomStartPosition + i] = noLineBreaks[i];
   }
-  book += noLineBreaks;
-  while (book.length < PAGES * LINES * CHARS) {
-    book += ALPHA[Math.floor(Math.random() * ALPHA.length)];
-  }
+
+  const book = bookArr.join("");
 
   const highlight = getHighlightPos(randomStartPosition, noLineBreaks.length);
 
