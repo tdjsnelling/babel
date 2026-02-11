@@ -17,23 +17,25 @@ const getHighlightPos = (start: number, length: number) => {
 };
 
 export const getEmptyBookContent = (content: string) => {
-  const lines = content.slice(0, LINES * CHARS).split("\n");
+  const lines = content.split("\n");
 
-  let page = "";
-  for (let li = 0; li < LINES; li++) {
+  let book = "";
+  for (let li = 0; li < lines.length; li++) {
     const line = lines[li] ?? "";
     let out = "";
-    for (let i = 0; i < CHARS; i++) {
+    for (let i = 0; i < line.length + (CHARS - (line.length % CHARS)); i++) {
       const c = line[i] ?? " ";
       out += allowed.has(c) ? c : " ";
     }
-    page += out;
+    book += out;
   }
+
+  book = book.slice(0, PAGES * LINES * CHARS);
 
   const bookArr = new Array(PAGES * LINES * CHARS).fill(" ");
 
-  for (let i = 0; i < page.length; i++) {
-    bookArr[i] = page[i];
+  for (let i = 0; i < book.length; i++) {
+    bookArr[i] = book[i];
   }
 
   return bookArr.join("");
@@ -45,18 +47,20 @@ export const getEmptyPageBookContent = (content: string) => {
   const randomPage = Math.floor(Math.random() * PAGES);
   const startChar = randomPage * LINES * CHARS;
 
-  const lines = content.slice(0, LINES * CHARS).split("\n");
+  const lines = content.split("\n");
 
   let page = "";
   for (let li = 0; li < LINES; li++) {
     const line = lines[li] ?? "";
     let out = "";
-    for (let i = 0; i < CHARS; i++) {
+    for (let i = 0; i < line.length + (CHARS - (line.length % CHARS)); i++) {
       const c = line[i] ?? " ";
       out += allowed.has(c) ? c : " ";
     }
     page += out;
   }
+
+  page = page.slice(0, LINES * CHARS);
 
   const bookArr = new Array(PAGES * LINES * CHARS);
 
