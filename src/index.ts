@@ -28,6 +28,10 @@ import { countObjects, getKeyValue, putKeyValue } from "./store";
 
 dotenv.config();
 
+const etag = process.env.NF_DEPLOYMENT_SHA
+  ? `W/"${process.env.NF_DEPLOYMENT_SHA}"`
+  : undefined;
+
 type FormidableRequest = Request & {
   files: {
     [key: string]: {
@@ -114,17 +118,16 @@ const checkBounds = (
   };
 
   app.use(async (ctx, next) => {
-    ctx.set("Cache-Control", "public, max-age=0, must-revalidate");
-    if (process.env.NF_DEPLOYMENT_SHA)
-      ctx.set("ETag", `W/${process.env.NF_DEPLOYMENT_SHA}`);
+    ctx.set("Cache-Control", "public, max-age=300, must-revalidate");
+    if (etag) ctx.set("ETag", etag);
     await next();
   });
 
   app.use(async (ctx, next) => {
     if (
+      etag &&
       ctx.request.header["if-none-match"] &&
-      ctx.request.header["if-none-match"] ===
-        `W/${process.env.NF_DEPLOYMENT_SHA}`
+      ctx.request.header["if-none-match"] === etag
     ) {
       ctx.status = 304;
       ctx.body = null;
