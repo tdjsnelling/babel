@@ -323,7 +323,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:not([disabled]):hover {
   color: darkred;
 }
 

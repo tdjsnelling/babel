@@ -30,24 +30,20 @@ form.onsubmit = async (e) => {
   }
 };
 
-const ALPHA = "abcdefghijklmnopqrstuvwxyz.,!?- ";
 const input = document.querySelector("textarea");
 input.oninput = (e) => {
-  if (e.inputType === "insertFromPaste") {
-    const content = e.target.value
-      .toLowerCase()
-      .split("")
-      .map((char) => {
-        if (!ALPHA.includes(char) && char !== "\r" && char !== "\n") return "";
-        return char;
-      })
-      .join("");
-    e.target.value = content;
-  } else if (
-    e.data &&
-    !ALPHA.includes(e.data.toLowerCase()) &&
-    e.inputType === "insertText"
-  ) {
-    e.target.value = e.target.value.slice(0, -1);
+  const { value, selectionEnd } = e.currentTarget;
+  const sanitizedValue = value
+    .toLowerCase()
+    .replaceAll(/[^a-z.,!?\- \r\n]/g, "");
+  e.currentTarget.value = sanitizedValue;
+  const deltaLength = value.length - sanitizedValue.length;
+  if (deltaLength !== 0) {
+    const caretPosition = Math.max(
+      0,
+      Math.min(sanitizedValue.length, selectionEnd - deltaLength)
+    );
+    e.currentTarget.selectionStart = e.currentTarget.selectionEnd =
+      caretPosition;
   }
 };

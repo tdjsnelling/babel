@@ -34,12 +34,17 @@ form.onsubmit = async (e) => {
 
 const room = form.querySelector('[name="room"]');
 room.oninput = (e) => {
-  if (
-    (!e.data || !/[0-9a-v]/.test(e.data)) &&
-    e.inputType !== "deleteContentBackward" &&
-    e.inputType !== "deleteContentForward"
-  ) {
-    e.target.value = e.target.value.slice(0, -1);
+  const { value, selectionEnd } = e.currentTarget;
+  const sanitizedValue = value.replaceAll(/[^0-9a-v]/g, "");
+  e.currentTarget.value = sanitizedValue;
+  const deltaLength = value.length - sanitizedValue.length;
+  if (deltaLength !== 0) {
+    const caretPosition = Math.max(
+      0,
+      Math.min(sanitizedValue.length, selectionEnd - deltaLength)
+    );
+    e.currentTarget.selectionStart = e.currentTarget.selectionEnd =
+      caretPosition;
   }
 };
 
