@@ -166,6 +166,8 @@ const checkBounds = (
   });
 
   staticRouter.get("/", async (ctx) => {
+    ctx.remove("ETag"); // commit-based etag here would mean bookmarkCount only updates on new deployment
+
     let bookmarkCount = 0;
 
     try {
@@ -474,8 +476,6 @@ const checkBounds = (
     let book = "";
     let highlight;
     let page = 1;
-
-    const t0 = Date.now();
 
     if (!mode || mode === "empty") {
       ({ book, page } = getEmptyPageBookContent(lowerCase));
