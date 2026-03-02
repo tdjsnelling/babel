@@ -25,17 +25,21 @@ function addToCache(key: string, value: string): void {
 }
 
 // Configuration
-const REGION: string = process.env.AWS_REGION!;
-const BUCKET_NAME: string = process.env.BUCKET_NAME!;
-
-if (!REGION || !BUCKET_NAME) {
-  throw new Error("Missing AWS_REGION or BUCKET_NAME");
-}
+const REGION: string | undefined = process.env.AWS_REGION;
+const BUCKET_NAME: string | undefined = process.env.BUCKET_NAME;
 
 // Initialize S3 client
-const s3 = new S3Client({
-  region: REGION,
-});
+let s3: S3Client | undefined;
+
+if (REGION && BUCKET_NAME) {
+  s3 = new S3Client({
+    region: REGION,
+  });
+} else {
+  console.warn(
+    "warning: missing AWS_REGION or BUCKET_NAME, bookmarks will not be persisted"
+  );
+}
 
 /**
  * Store a key-value pair (value as plain text)
@@ -43,14 +47,16 @@ const s3 = new S3Client({
 export async function putKeyValue(key: string, value: string): Promise<void> {
   addToCache(key, value);
 
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-      Body: value,
-      ContentType: "text/plain",
-    })
-  );
+  if (s3) {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        Body: value,
+        ContentType: "text/plain",
+      })
+    );
+  }
 }
 
 /**
@@ -64,20 +70,26 @@ export async function getKeyValue(key: string): Promise<string> {
 
   console.log(`cache miss for ${key}`);
 
-  const response = await s3.send(
-    new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key })
-  );
-  const value = await streamToString(response.Body as Readable);
+  if (s3) {
+    const response = await s3.send(
+      new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key })
+    );
+    const value = await streamToString(response.Body as Readable);
 
-  if (key !== "_bookmark_count") addToCache(key, value);
+    if (key !== "_bookmark_count") addToCache(key, value);
 
-  return value;
+    return value;
+  }
+
+  throw new Error(`could not get value for ${key}`);
 }
 
 /**
  * Count the number of objects in the bucket
  */
 export async function countObjects(): Promise<number> {
+  if (!s3) return 0;
+
   let isTruncated = true;
   let continuationToken: string | undefined = undefined;
   let totalCount = 0;
